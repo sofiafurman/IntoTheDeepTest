@@ -147,7 +147,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             if (gamepad1.dpad_left && !changed1) {
                 Toggle = Toggle * -1;
                 changed1 = true;
-                telemetry.addData("This is the toggle value", Toggle);
+
             } else if (!gamepad1.dpad_left){
                 changed1 = false;
             }
@@ -177,6 +177,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * Toggle);
 
             // Show the elapsed game time and wheel power.
+            telemetry.addData("This is the toggle value", Toggle);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
