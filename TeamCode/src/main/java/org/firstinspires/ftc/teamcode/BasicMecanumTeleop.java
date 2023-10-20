@@ -86,6 +86,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
+        // Toggle
+        double Toggle = 1;
+        boolean changed1 = false;
+
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
         // ########################################################################################
@@ -124,6 +128,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             double leftBackPower   = axial - lateral + yaw;
             double rightBackPower  = axial + lateral - yaw;
 
+
+
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
             max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
@@ -136,6 +142,16 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 leftBackPower   /= max;
                 rightBackPower  /= max;
             }
+
+            // Toggle code
+            if (gamepad1.dpad_left && !changed1) {
+                Toggle = Toggle * -1;
+                changed1 = true;
+                telemetry.addData("This is the toggle value", Toggle);
+            } else if (!gamepad1.dpad_left){
+                changed1 = false;
+            }
+
 
             // This is test code:
             //
@@ -155,10 +171,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
             */
 
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower);
-            rightFrontDrive.setPower(rightFrontPower);
-            leftBackDrive.setPower(leftBackPower);
-            rightBackDrive.setPower(rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower * Toggle);
+            rightFrontDrive.setPower(rightFrontPower * Toggle);
+            leftBackDrive.setPower(leftBackPower * Toggle);
+            rightBackDrive.setPower(rightBackPower * Toggle);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
