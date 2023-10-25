@@ -90,6 +90,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
         double Toggle = 1;
         boolean changed1 = false;
 
+        // Speed
+        double speed = 1;
+        boolean changed2 = false;
+
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
         // ########################################################################################
@@ -117,8 +121,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
+            double axial   = -gamepad1.left_stick_y * Toggle;  // Note: pushing stick forward gives negative value
+            double lateral =  gamepad1.left_stick_x * Toggle;
             double yaw     =  gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
@@ -152,6 +156,21 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 changed1 = false;
             }
 
+            //speed code
+            if (gamepad1.dpad_right && !changed2) {
+                if (speed == 0.5){
+                    speed = 1;
+                }
+                else if (speed == 1){
+                    speed = 0.5;
+                }
+                changed2 = true;
+
+            } else if (!gamepad1.dpad_right){
+                changed2 = false;
+            }
+
+
 
             // This is test code:
             //
@@ -171,13 +190,15 @@ public class BasicMecanumTeleop extends LinearOpMode {
             */
 
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower * Toggle);
-            rightFrontDrive.setPower(rightFrontPower * Toggle);
-            leftBackDrive.setPower(leftBackPower * Toggle);
-            rightBackDrive.setPower(rightBackPower * Toggle);
+            leftFrontDrive.setPower(leftFrontPower * speed);
+            rightFrontDrive.setPower(rightFrontPower * speed);
+            leftBackDrive.setPower(leftBackPower * speed);
+            rightBackDrive.setPower(rightBackPower * speed);
+
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("This is the toggle value", Toggle);
+            telemetry.addData("This is the speed multiplier", speed);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
