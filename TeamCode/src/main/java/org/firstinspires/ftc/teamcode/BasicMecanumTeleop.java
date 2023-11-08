@@ -76,6 +76,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
+    private DcMotor spinMotor = null;
+
     @Override
     public void runOpMode() {
 
@@ -85,6 +87,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
 
         // Toggle
         double Toggle = 1;
@@ -93,6 +96,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // Speed
         double speed = 1;
         boolean changed2 = false;
+
+        //Spin and spin toggle
+        double spinFactor = 0;
+        double spinToggle = 1;
+        boolean changed3 = false;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -108,6 +116,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        spinMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -170,6 +179,22 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 changed2 = false;
             }
 
+            //spinny code
+            if (gamepad2.x == true){
+                spinFactor = .7;
+            }
+            else if (gamepad2.y == true){
+                spinFactor = -.7;
+            }
+            else{
+                spinFactor = 0;
+            }
+
+
+
+
+
+
 
 
             // This is test code:
@@ -194,7 +219,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower * speed);
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
-
+            spinMotor.setPower(spinFactor);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("This is the toggle value", Toggle);
