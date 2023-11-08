@@ -9,9 +9,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //@Disabled
 public class CheezitEncoderAuto extends LinearOpMode {
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
-    // and it will convert to the same encoder count. (1440 counts is one rotation)
+    // and it will convert to the same encoder count. (1120 counts is one rotation for AndyMark motors)
     static final double WHEEL_DIAMETER_INCHES = 4;
-    static final double COUNTS_PER_INCH = 1440 / WHEEL_DIAMETER_INCHES / 3.1415;
+    static final double COUNTS_PER_INCH = 1120 / WHEEL_DIAMETER_INCHES / 3.1415;
 
     // Define the motors
     private DcMotor rightFrontDrive = null;
@@ -57,11 +57,11 @@ public class CheezitEncoderAuto extends LinearOpMode {
 
         // Drive the robot with the following commands
         // (Inch targets for each wheel and speed to move)
-        encoderDrive(5, 5, .6); // Forward
-        encoderDrive(-15, 15, .5); // Turn left
-        encoderDrive(50, 50, .6); // Forward
-        encoderDrive(15, -15, .5); // Turn right
-        encoderDrive(-20, -20, .6); // Backward
+        encoderDrive(5, 5, .3);
+        encoderDrive(7, 7, .3);
+        encoderDrive(9, 9, .3);
+        encoderDrive(-9, 9, .3);
+        encoderDrive(18, -18, .3);
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
@@ -133,7 +133,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
             // Finished move
             telemetry.addData("Status", "Move finished");
             telemetry.update();
-            sleep(1000); // Wait a second
+            sleep(5000); // Wait a second
         }
     }
 }
