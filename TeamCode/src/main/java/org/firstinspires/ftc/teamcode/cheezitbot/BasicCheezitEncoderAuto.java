@@ -1,12 +1,21 @@
 package org.firstinspires.ftc.teamcode.cheezitbot;
 
+//////////////////////////////////////
+
+/*
+This code is the very basic encoder code for Cheezitbot.
+You can mess around with it to make sure that motor directions
+are set up correctly and that encoders are running in general.
+*/
+
+//////////////////////////////////////
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Robot: Auto Drive By Encoder (Cheezitbot)", group="Robot")
+@Autonomous(name="Robot: TEST Auto Encoder Drive (Cheezitbot)", group="Robot")
 //@Disabled
 public class BasicCheezitEncoderAuto extends LinearOpMode {
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
@@ -56,13 +65,48 @@ public class BasicCheezitEncoderAuto extends LinearOpMode {
         waitForStart(); // Waiting for start button
         runtime.reset();
 
-        // Drive the robot with the following commands
-        // (Inch targets for each wheel and speed to move)
-        encoderDrive(5, 5, .6); // Forward
-        encoderDrive(-15, 15, .5); // Turn left
-        encoderDrive(50, 50, .6); // Forward
-        encoderDrive(15, -15, .5); // Turn right
-        encoderDrive(-20, -20, .6); // Backward
+        // Set target encoder counts (1440 counts is one wheel rotation)
+        leftFrontDrive.setTargetPosition(1440*2);
+        rightBackDrive.setTargetPosition(1440*2);
+        rightFrontDrive.setTargetPosition(1440*2);
+        leftBackDrive.setTargetPosition(1440*2);
+
+        // Turn on motors
+        leftFrontDrive.setPower(.7);
+        rightBackDrive.setPower(.7);
+        rightFrontDrive.setPower(.7);
+        leftBackDrive.setPower(.7);
+
+        // Set motor mode to use encoders
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Do nothing while motors are busy.
+        // Update status on phone and print out encoder counts
+        while (opModeIsActive() && rightFrontDrive.isBusy() && leftBackDrive.isBusy() &&
+        leftFrontDrive.isBusy() && rightBackDrive.isBusy()) {
+            telemetry.addData("Status", "Waiting for all motors to stop running.");
+            telemetry.addData("Positions (lf, lb, rf, rb)", "%7d; %7d; %7d; %7d",
+                    leftFrontDrive.getCurrentPosition(),
+                    leftBackDrive.getCurrentPosition(),
+                    rightFrontDrive.getCurrentPosition(),
+                    rightBackDrive.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Turn off motors
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        leftFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
+        // Turn off the "RUN_TO_POSITION" mode on each motor
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
@@ -70,71 +114,5 @@ public class BasicCheezitEncoderAuto extends LinearOpMode {
         telemetry.update();
 
         sleep(5000); // Give 5 sec to view message before finishing
-    }
-
-    public void encoderDrive(double leftIn, double rightIn, double speed) {
-        // The juicy encoder details will be in here
-        int leftBackTarget;
-        int leftFrontTarget;
-        int rightBackTarget;
-        int rightFrontTarget;
-
-        if (opModeIsActive()) {
-            // Convert inputted inches into encoder counts
-            // Also, set the target encoder counts per motor
-            leftBackTarget = leftBackDrive.getCurrentPosition() + (int)(leftIn * COUNTS_PER_INCH);
-            leftBackDrive.setTargetPosition(leftBackTarget);
-            leftFrontTarget = leftBackDrive.getCurrentPosition() + (int)(leftIn * COUNTS_PER_INCH);
-            leftFrontDrive.setTargetPosition(leftFrontTarget);
-            rightBackTarget = leftBackDrive.getCurrentPosition() + (int)(rightIn * COUNTS_PER_INCH);
-            rightBackDrive.setTargetPosition(rightBackTarget);
-            rightFrontTarget = leftBackDrive.getCurrentPosition() + (int)(rightIn * COUNTS_PER_INCH);
-            rightFrontDrive.setTargetPosition(rightFrontTarget);
-
-            // Turn on the motors
-            leftBackDrive.setPower(Math.abs(speed));
-            leftFrontDrive.setPower(Math.abs(speed));
-            rightBackDrive.setPower(Math.abs(speed));
-            rightFrontDrive.setPower(Math.abs(speed));
-
-            // This will turn off the "RUN_TO_POSITION" mode on each motor
-            leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            // The movement will automatically stop if the runtime exceeds
-            // 200 seconds (190 seconds is the length of an whole ftc match)
-            // Don't want the robot to run forever by accident
-            while (opModeIsActive() &&
-                    leftFrontDrive.isBusy() || leftBackDrive.isBusy() &&
-                    rightFrontDrive.isBusy() && rightBackDrive.isBusy() &&
-                    runtime.seconds() < 200) {
-                telemetry.addData("Status", "Busy af rn leave me alone");
-                telemetry.addData("Positions (lf, lb, rf, rb)", "%7d; %7d; %7d; %7d",
-                        leftFrontDrive.getCurrentPosition(),
-                        leftBackDrive.getCurrentPosition(),
-                        rightFrontDrive.getCurrentPosition(),
-                        rightBackDrive.getCurrentPosition());
-                telemetry.update();
-            }
-
-            // Turn off motors
-            leftFrontDrive.setPower(0);
-            leftBackDrive.setPower(0);
-            rightFrontDrive.setPower(0);
-            rightBackDrive.setPower(0);
-
-            // This will turn off the "RUN_TO_POSITION" mode on each motor
-            leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            // Finished move
-            telemetry.addData("Status", "Move finished");
-            telemetry.update();
-            sleep(1000); // Wait a second
-        }
     }
 }
