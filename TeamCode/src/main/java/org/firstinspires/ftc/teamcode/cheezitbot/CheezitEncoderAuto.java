@@ -57,11 +57,15 @@ public class CheezitEncoderAuto extends LinearOpMode {
 
         // Drive the robot with the following commands
         // (Inch targets for each wheel and speed to move)
-        encoderDrive(5, 5, .3);
-        encoderDrive(7, 7, .3);
-        encoderDrive(9, 9, .3);
-        encoderDrive(-9, 9, .3);
-        encoderDrive(18, -18, .3);
+        /*encoderDrive(48, 48, .5);
+        encoderDrive(20, -20, .3);
+        encoderDrive(-24, -24, .5);
+        encoderDrive(-20, 20, .3);
+        encoderDrive(24, 24, .5);*/
+        encoderDrive(15, -15, .3);
+        encoderDrive(20, -20, .3);
+        encoderDrive(25, -25, .3);
+        encoderDrive(30, -30, .3);
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
@@ -133,7 +137,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
             // Finished move
             telemetry.addData("Status", "Move finished");
             telemetry.update();
-            sleep(5000); // Wait a second
+            sleep(10000); // Wait a second
         }
     }
 }
