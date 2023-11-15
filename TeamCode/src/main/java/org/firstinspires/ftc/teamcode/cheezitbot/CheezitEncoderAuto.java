@@ -38,11 +38,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        // Reset encoders and set their encoder mode
-        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        resetEncoders();
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -57,9 +53,10 @@ public class CheezitEncoderAuto extends LinearOpMode {
         runtime.reset();
 
         // AUTO COMMANDS:
-        //encoderDrive(15, 15, .6);
-        encoderStrafe(10, .2);
-        encoderStrafe(-10, .2);
+        encoderDrive(24*2, 24*2, .4);
+        encoderStrafe(24, .2);
+        encoderDrive(-24*2, -24*2, .4);
+        encoderStrafe(-24, .2);
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
@@ -67,6 +64,14 @@ public class CheezitEncoderAuto extends LinearOpMode {
         telemetry.update();
 
         sleep(5000); // Give 5 sec to view message before finishing
+    }
+
+    private void resetEncoders() {
+        // Reset encoders and set their encoder mode
+        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void encoderDrive(double leftIn, double rightIn, double speed) {
@@ -79,13 +84,14 @@ public class CheezitEncoderAuto extends LinearOpMode {
         if (opModeIsActive()) {
             // Convert inputted inches into encoder counts
             // Also, set the target encoder counts per motor
-            leftBackTarget = leftBackDrive.getCurrentPosition() + (int)(leftIn * COUNTS_PER_INCH);
+            resetEncoders();
+            leftBackTarget = (int)(leftIn * COUNTS_PER_INCH);
             leftBackDrive.setTargetPosition(leftBackTarget);
-            leftFrontTarget = leftBackDrive.getCurrentPosition() + (int)(leftIn * COUNTS_PER_INCH);
+            leftFrontTarget = (int)(leftIn * COUNTS_PER_INCH);
             leftFrontDrive.setTargetPosition(leftFrontTarget);
-            rightBackTarget = leftBackDrive.getCurrentPosition() + (int)(rightIn * COUNTS_PER_INCH);
+            rightBackTarget = (int)(rightIn * COUNTS_PER_INCH);
             rightBackDrive.setTargetPosition(rightBackTarget);
-            rightFrontTarget = leftBackDrive.getCurrentPosition() + (int)(rightIn * COUNTS_PER_INCH);
+            rightFrontTarget = (int)(rightIn * COUNTS_PER_INCH);
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
@@ -103,14 +109,16 @@ public class CheezitEncoderAuto extends LinearOpMode {
 
         if (opModeIsActive()) {
             // Set targets using conversion factor to turn inches into encoder counts
+            resetEncoders();
             double newTarget = (targetIn * STRAFE_COUNTS_PER_INCH);
-            rightFrontTarget = rightFrontDrive.getCurrentPosition() - (int)newTarget;
+
+            rightFrontTarget = -(int)newTarget;
             rightFrontDrive.setTargetPosition(rightFrontTarget);
-            leftBackTarget = leftBackDrive.getCurrentPosition() - (int)newTarget;
+            leftBackTarget = -(int)newTarget;
             leftBackDrive.setTargetPosition(leftBackTarget);
-            rightBackTarget = rightBackDrive.getCurrentPosition() + (int)newTarget;
+            rightBackTarget = (int)newTarget;
             rightBackDrive.setTargetPosition(rightBackTarget);
-            leftFrontTarget = leftFrontDrive.getCurrentPosition() + (int)newTarget;
+            leftFrontTarget = (int)newTarget;
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
@@ -119,6 +127,9 @@ public class CheezitEncoderAuto extends LinearOpMode {
     }
 
     public void startWaitFinish(double speed, long waitMillis) {
+        // This code is reused a couple times, so all it does is turn on
+        // the motors (after their encoder targets are set) and wait until
+        // they are done running to their position.
         // Turn on the motors
         leftBackDrive.setPower(Math.abs(speed));
         leftFrontDrive.setPower(Math.abs(speed));
@@ -131,15 +142,13 @@ public class CheezitEncoderAuto extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        double currSeconds = runtime.seconds();
-
         // The movement will automatically stop if the runtime exceeds
         // 120 seconds (length of an whole ftc match).
         // Don't want the robot to run forever by accident
         while (opModeIsActive() &&
                 leftFrontDrive.isBusy() || leftBackDrive.isBusy() &&
                 rightFrontDrive.isBusy() && rightBackDrive.isBusy() &&
-                runtime.seconds() - currSeconds < 120) {
+                runtime.seconds() < 120) {
             telemetry.addData("Status", "Busy af rn leave me alone");
             telemetry.addData("Positions (lf, lb, rf, rb)", "%7d; %7d; %7d; %7d",
                     leftFrontDrive.getCurrentPosition(),
