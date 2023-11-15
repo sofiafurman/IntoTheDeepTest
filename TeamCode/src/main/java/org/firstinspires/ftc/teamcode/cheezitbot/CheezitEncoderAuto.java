@@ -57,9 +57,9 @@ public class CheezitEncoderAuto extends LinearOpMode {
         runtime.reset();
 
         // AUTO COMMANDS:
-        encoderDrive(15, 15, .6);
-        encoderStrafe(5, .2);
-        encoderStrafe(-5, .2);
+        //encoderDrive(15, 15, .6);
+        encoderStrafe(10, .2);
+        encoderStrafe(-10, .2);
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
