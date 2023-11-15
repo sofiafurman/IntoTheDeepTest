@@ -67,16 +67,16 @@ public class BasicCheezitEncoderAuto extends LinearOpMode {
 
         // Set target encoder counts. 1 rotation is...
         // 1120 Counts (AndyMark) or 1440 Counts (Tetrix)
-        leftFrontDrive.setTargetPosition(1120*2);
-        rightBackDrive.setTargetPosition(1120*2);   // (2 wheel turns)
-        rightFrontDrive.setTargetPosition(1120*2);
-        leftBackDrive.setTargetPosition(1120*2);
+        leftFrontDrive.setTargetPosition(1120);
+        rightBackDrive.setTargetPosition(1120);   // (2 wheel turns)
+        rightFrontDrive.setTargetPosition(-1120);
+        leftBackDrive.setTargetPosition(-1120);
 
         // Turn on motors
-        leftFrontDrive.setPower(.5);
-        rightBackDrive.setPower(.5);
-        rightFrontDrive.setPower(.5);
-        leftBackDrive.setPower(.5);
+        leftFrontDrive.setPower(.2);
+        rightBackDrive.setPower(.2);
+        rightFrontDrive.setPower(.2);
+        leftBackDrive.setPower(.2);
 
         // Set motor mode to use encoders
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
