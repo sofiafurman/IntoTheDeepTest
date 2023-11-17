@@ -78,6 +78,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
     private DcMotor spinMotor = null;
 
+    private DcMotor extendMotor = null;
+
     @Override
     public void runOpMode() {
 
@@ -88,7 +90,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
-
+        extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
         // Toggle
         double Toggle = 1;
         boolean changed1 = false;
@@ -99,6 +101,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         //Spin and spin toggle
         double spinFactor = 0;
+        double extendFactor = 0;
         double spinToggle = 1;
         boolean changed3 = false;
 
@@ -117,6 +120,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         spinMotor.setDirection(DcMotor.Direction.REVERSE);
+        extendMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -189,6 +193,16 @@ public class BasicMecanumTeleop extends LinearOpMode {
             else{
                 spinFactor = 0;
             }
+            //extendy code
+            if (gamepad2.a == true){
+                extendFactor = .5;
+            }
+            else if (gamepad2.b == true){
+                extendFactor = -.5;
+            }
+            else{
+                extendFactor = 0;
+            }
 
 
 
@@ -220,6 +234,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
             spinMotor.setPower(spinFactor);
+            extendMotor.setPower(extendFactor);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("This is the toggle value", Toggle);
