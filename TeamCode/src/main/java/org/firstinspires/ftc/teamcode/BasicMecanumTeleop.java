@@ -76,6 +76,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
+    private DcMotor spinMotor = null;
+
+    private DcMotor extendMotor = null;
+
     @Override
     public void runOpMode() {
 
@@ -85,6 +89,21 @@ public class BasicMecanumTeleop extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
+        extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
+        // Toggle
+        double Toggle = 1;
+        boolean changed1 = false;
+
+        // Speed
+        double speed = 1;
+        boolean changed2 = false;
+
+        //Spin and spin toggle
+        double spinFactor = 0;
+        double extendFactor = 0;
+        double spinToggle = 1;
+        boolean changed3 = false;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -100,6 +119,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        spinMotor.setDirection(DcMotor.Direction.REVERSE);
+        extendMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -113,8 +134,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
+            double axial   = -gamepad1.left_stick_y * Toggle;  // Note: pushing stick forward gives negative value
+            double lateral =  gamepad1.left_stick_x * Toggle;
             double yaw     =  gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
@@ -123,6 +144,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             double rightFrontPower = axial - lateral - yaw;
             double leftBackPower   = axial - lateral + yaw;
             double rightBackPower  = axial + lateral - yaw;
+
+
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -136,6 +159,57 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 leftBackPower   /= max;
                 rightBackPower  /= max;
             }
+
+            // Toggle code
+            if (gamepad1.dpad_left && !changed1) {
+                Toggle = Toggle * -1;
+                changed1 = true;
+
+            } else if (!gamepad1.dpad_left){
+                changed1 = false;
+            }
+
+            //speed code
+            if (gamepad1.dpad_right && !changed2) {
+                if (speed == 0.5){
+                    speed = 1;
+                }
+                else if (speed == 1){
+                    speed = 0.5;
+                }
+                changed2 = true;
+
+            } else if (!gamepad1.dpad_right){
+                changed2 = false;
+            }
+
+            //spinny code
+            if (gamepad2.x == true){
+                spinFactor = .7;
+            }
+            else if (gamepad2.y == true){
+                spinFactor = -.7;
+            }
+            else{
+                spinFactor = 0;
+            }
+            //extendy code
+            if (gamepad2.a == true){
+                extendFactor = .5;
+            }
+            else if (gamepad2.b == true){
+                extendFactor = -.5;
+            }
+            else{
+                extendFactor = 0;
+            }
+
+
+
+
+
+
+
 
             // This is test code:
             //
@@ -155,12 +229,16 @@ public class BasicMecanumTeleop extends LinearOpMode {
             */
 
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower);
-            rightFrontDrive.setPower(rightFrontPower);
-            leftBackDrive.setPower(leftBackPower);
-            rightBackDrive.setPower(rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower * speed);
+            rightFrontDrive.setPower(rightFrontPower * speed);
+            leftBackDrive.setPower(leftBackPower * speed);
+            rightBackDrive.setPower(rightBackPower * speed);
+            spinMotor.setPower(spinFactor);
+            extendMotor.setPower(extendFactor);
 
             // Show the elapsed game time and wheel power.
+            telemetry.addData("This is the toggle value", Toggle);
+            telemetry.addData("This is the speed multiplier", speed);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
