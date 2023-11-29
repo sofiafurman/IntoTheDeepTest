@@ -99,14 +99,15 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         // Servo
 
-        final double INCREMENT   = 0.01;     // amount to slew servo each CYCLE_MS cycle
+        final double INCREMENT   = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int    CYCLE_MS    =   50;     // period of each cycle
-        final double MAX_POS     =  1.0;     // Maximum rotational position
-        final double MIN_POS     =  0.0;     // Minimum rotational position
+        final double MAX_POS     =  0.80;     // Maximum rotational position
+        final double MIN_POS     =  0.15;     // Minimum rotational position
 
-        double  position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
+        double  position = MIN_POS + ( (MAX_POS - MIN_POS) / 2 ) ; // Start at halfway position
 
-        double increment = 0.01;
+
+        double increment = 0.001;
 
         // Toggle
         double Toggle = 1;
@@ -202,10 +203,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //spinny code
-            if (gamepad2.x == true){
+            if (gamepad2.a == true){
                 spinFactor = .7;
             }
-            else if (gamepad2.y == true){
+            else if (gamepad2.b == true){
                 spinFactor = -.7;
             }
             else{
@@ -213,10 +214,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //extendy code
-            if (gamepad2.a == true){
+            if (gamepad2.right_bumper == true){
                 extendFactor = .5;
             }
-            else if (gamepad2.b == true){
+            else if (gamepad2.left_bumper == true){
                 extendFactor = -.5;
             }
             else{
@@ -224,20 +225,22 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //Servo
-            if (gamepad2.dpad_right) {
-                position += INCREMENT;
+            if (gamepad2.y) {
+                position = MAX_POS;
                 if (position >= MAX_POS){
                     position = MAX_POS;
                 }
 
             }
 
-            if (gamepad2.dpad_left) {
-                position -= INCREMENT;
+
+            else {
+                position = MIN_POS;
                 if (position <= MIN_POS){
                     position = MIN_POS;
                 }
             }
+
 
             // Display the current value
             //telemetry.addData("Servo Position", "%5.2f", position);
