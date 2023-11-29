@@ -35,7 +35,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -80,6 +82,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
     private DcMotor extendMotor = null;
 
+    private Servo servoMotor = null;
+
     @Override
     public void runOpMode() {
 
@@ -91,6 +95,19 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
         extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
+        servoMotor = hardwareMap.get(Servo.class, "servo_motor");
+
+        // Servo
+
+        final double INCREMENT   = 0.01;     // amount to slew servo each CYCLE_MS cycle
+        final int    CYCLE_MS    =   50;     // period of each cycle
+        final double MAX_POS     =  1.0;     // Maximum rotational position
+        final double MIN_POS     =  0.0;     // Minimum rotational position
+
+        double  position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
+
+        double increment = 0.01;
+
         // Toggle
         double Toggle = 1;
         boolean changed1 = false;
@@ -121,6 +138,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         spinMotor.setDirection(DcMotor.Direction.REVERSE);
         extendMotor.setDirection(DcMotor.Direction.REVERSE);
+        servoMotor.setDirection(Servo.Direction.FORWARD);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -193,6 +211,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             else{
                 spinFactor = 0;
             }
+
             //extendy code
             if (gamepad2.a == true){
                 extendFactor = .5;
@@ -203,6 +222,32 @@ public class BasicMecanumTeleop extends LinearOpMode {
             else{
                 extendFactor = 0;
             }
+
+            //Servo
+            if (gamepad2.dpad_right) {
+                position += INCREMENT;
+                if (position >= MAX_POS){
+                    position = MAX_POS;
+                }
+
+            }
+
+            if (gamepad2.dpad_left) {
+                position -= INCREMENT;
+                if (position <= MIN_POS){
+                    position = MIN_POS;
+                }
+            }
+
+            // Display the current value
+            //telemetry.addData("Servo Position", "%5.2f", position);
+            //telemetry.update();
+
+            // Set the servo to the new position and pause;
+            servoMotor.setPosition(position);
+            //sleep(CYCLE_MS);
+            idle();
+
 
 
 
@@ -242,6 +287,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Servo Position", "%5.2f", position);
             telemetry.update();
         }
     }}
