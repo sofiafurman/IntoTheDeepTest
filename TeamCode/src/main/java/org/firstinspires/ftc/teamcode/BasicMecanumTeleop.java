@@ -138,11 +138,14 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         spinMotor.setDirection(DcMotor.Direction.REVERSE);
-        extendMotor.setDirection(DcMotor.Direction.REVERSE);
+        extendMotor.setDirection(DcMotor.Direction.FORWARD);
         servoMotor.setDirection(Servo.Direction.FORWARD);
+        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Starting at",  "%7d", -1 * extendMotor.getCurrentPosition());
         telemetry.update();
 
         waitForStart();
@@ -156,6 +159,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             double axial   = -gamepad1.left_stick_y * Toggle;  // Note: pushing stick forward gives negative value
             double lateral =  gamepad1.left_stick_x * Toggle;
             double yaw     =  gamepad1.right_stick_x;
+
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -282,7 +286,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
             spinMotor.setPower(spinFactor);
-            extendMotor.setPower(extendFactor);
+            extendMotor.setPower(gamepad2.right_stick_y);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("This is the toggle value", Toggle);
@@ -291,6 +295,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.addData("Servo Position", "%5.2f", position);
+            telemetry.addData("Currently at",  "%7d",
+                    -1 * extendMotor.getCurrentPosition());
             telemetry.update();
         }
     }}
