@@ -101,10 +101,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         final double INCREMENT   = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int    CYCLE_MS    =   50;     // period of each cycle
-        final double MAX_POS     =  0.80;     // Maximum rotational position
-        final double MIN_POS     =  0.15;     // Minimum rotational position
+        final double MAX_POS     =  0.712;     // Maximum rotational position
+        final double MIN_POS     =  0.461;     // Minimum rotational position
 
-        double  position = MIN_POS + ( (MAX_POS - MIN_POS) / 2 ) ; // Start at halfway position
+        double  position = MIN_POS;
 
 
         double increment = 0.001;
@@ -208,10 +208,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
             //spinny code
             if (gamepad2.a == true){
-                spinFactor = .7;
+                spinFactor = 0.87;
             }
             else if (gamepad2.b == true){
-                spinFactor = -.7;
+                spinFactor = -0.87;
             }
             else{
                 spinFactor = 0;
