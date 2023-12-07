@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class BasicAutonomous extends LinearOpMode {
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
     // and it will convert to the same encoder count. (~538 counts is one rotation)
-    static final double WHEEL_DIAMETER_INCHES = 3.75;
+    static final double WHEEL_DIAMETER_INCHES = 3.779528;
     static final double COUNTS_PER_INCH = 537.6898395722 / WHEEL_DIAMETER_INCHES / 3.1415;
 
     // Define the motors
@@ -57,16 +57,16 @@ public class BasicAutonomous extends LinearOpMode {
 
         // Set target encoder counts. 1 rotation is...
         // 1120 Counts (AndyMark) or 1440 Counts (Tetrix) or ~538 Counts (GoBilda)
-        leftFrontDrive.setTargetPosition((int)(24*3*COUNTS_PER_INCH));
-        rightBackDrive.setTargetPosition((int)(24*3*COUNTS_PER_INCH));   // (3 wheel turns)
-        rightFrontDrive.setTargetPosition((int)(24*3*COUNTS_PER_INCH));
-        leftBackDrive.setTargetPosition((int)(24*3*COUNTS_PER_INCH));
+        leftFrontDrive.setTargetPosition(-537);
+        rightBackDrive.setTargetPosition(-537);   // (1 wheel turn)
+        rightFrontDrive.setTargetPosition(537);
+        leftBackDrive.setTargetPosition(537);
 
         // Turn on motors
-        leftFrontDrive.setPower(.4);
-        rightBackDrive.setPower(.4);
-        rightFrontDrive.setPower(.4);
-        leftBackDrive.setPower(.4);
+        leftFrontDrive.setPower(.2);
+        rightBackDrive.setPower(.2);
+        rightFrontDrive.setPower(.2);
+        leftBackDrive.setPower(.2);
 
         // Set motor mode to use encoders
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
