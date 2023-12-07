@@ -105,13 +105,13 @@ public class BasicMecanumTeleop extends LinearOpMode {
         final int    CYCLE_MS    =   50;     // period of each cycle
         final double MAX_POS_TILT     =  0.712;     // Maximum rotational position
         final double MIN_POS_TILT     =  0.461;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 1;
+        final double MAX_POS_RELEASE = .4;
         final double MIN_POS_RELEASE = 0;
 
         double  position = MIN_POS_TILT;
 
         double mode = 1;    // For the timing between the servos
-        double timeSet = 1000;
+        double timeSet = 80;
         double time = timeSet;
 
         double increment = 0.001;
@@ -236,7 +236,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //Servo
-            if (gamepad2.y) {
+            /*if (gamepad2.y) {
                 position = MAX_POS_TILT;
                 if (position >= MAX_POS_TILT){
                     position = MAX_POS_TILT;
@@ -251,6 +251,26 @@ public class BasicMecanumTeleop extends LinearOpMode {
                     position = MIN_POS_TILT;
                 }
                 servoRelease.setPosition(MIN_POS_RELEASE);
+            }*/
+
+            // This servo code times the movement of the servos such
+            // that one will finish before the other one (tilt then release)
+            if (!gamepad2.y) {
+                mode = 1;
+                time = timeSet;
+                servoTilt.setPosition(MIN_POS_TILT);
+                servoRelease.setPosition(MIN_POS_RELEASE);
+            } else {
+                if (mode == 1) {
+                    servoTilt.setPosition(MAX_POS_TILT);
+                } else if (mode == 2) {
+                    servoRelease.setPosition(MAX_POS_RELEASE);
+                }
+                time -= 1;
+                if (time <= 0) {
+                    time = timeSet;
+                    mode = 2;
+                }
             }
 
 
@@ -259,7 +279,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             //telemetry.update();
 
             // Set the servo to the new position and pause;
-            servoTilt.setPosition(position);
+            //servoTilt.setPosition(position);            ################# Uncheck later?
             //sleep(CYCLE_MS);
             idle();
 
