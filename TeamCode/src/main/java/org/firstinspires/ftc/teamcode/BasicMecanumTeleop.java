@@ -82,7 +82,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
     private DcMotor extendMotor = null;
 
-    private Servo servoMotor = null;
+    private Servo servoTilt = null;
+    private Servo servoRelease = null;
 
     @Override
     public void runOpMode() {
@@ -95,17 +96,23 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
         extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
-        servoMotor = hardwareMap.get(Servo.class, "servo_motor");
+        servoTilt = hardwareMap.get(Servo.class, "servo_motor");
+        servoRelease = hardwareMap.get(Servo.class, "servo_release");
 
         // Servo
 
         final double INCREMENT   = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int    CYCLE_MS    =   50;     // period of each cycle
-        final double MAX_POS     =  0.712;     // Maximum rotational position
-        final double MIN_POS     =  0.461;     // Minimum rotational position
+        final double MAX_POS_TILT     =  0.712;     // Maximum rotational position
+        final double MIN_POS_TILT     =  0.461;     // Minimum rotational position
+        final double MAX_POS_RELEASE = 1;
+        final double MIN_POS_RELEASE = 0;
 
-        double  position = MIN_POS;
+        double  position = MIN_POS_TILT;
 
+        double mode = 1;    // For the timing between the servos
+        double timeSet = 1000;
+        double time = timeSet;
 
         double increment = 0.001;
 
@@ -139,7 +146,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         spinMotor.setDirection(DcMotor.Direction.REVERSE);
         extendMotor.setDirection(DcMotor.Direction.FORWARD);
-        servoMotor.setDirection(Servo.Direction.FORWARD);
+        servoTilt.setDirection(Servo.Direction.FORWARD);
         extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -230,19 +237,20 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
             //Servo
             if (gamepad2.y) {
-                position = MAX_POS;
-                if (position >= MAX_POS){
-                    position = MAX_POS;
+                position = MAX_POS_TILT;
+                if (position >= MAX_POS_TILT){
+                    position = MAX_POS_TILT;
                 }
-
+                servoRelease.setPosition(MAX_POS_RELEASE);
             }
 
 
             else {
-                position = MIN_POS;
-                if (position <= MIN_POS){
-                    position = MIN_POS;
+                position = MIN_POS_TILT;
+                if (position <= MIN_POS_TILT){
+                    position = MIN_POS_TILT;
                 }
+                servoRelease.setPosition(MIN_POS_RELEASE);
             }
 
 
@@ -251,7 +259,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             //telemetry.update();
 
             // Set the servo to the new position and pause;
-            servoMotor.setPosition(position);
+            servoTilt.setPosition(position);
             //sleep(CYCLE_MS);
             idle();
 
