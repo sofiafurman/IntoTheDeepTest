@@ -103,10 +103,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         final double INCREMENT   = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int    CYCLE_MS    =   50;     // period of each cycle
-        final double MAX_POS_TILT     =  0.712;     // Maximum rotational position
-        final double MIN_POS_TILT     =  0.461;     // Minimum rotational position
-        final double MAX_POS_RELEASE = .4;
-        final double MIN_POS_RELEASE = 0;
+        final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
+        final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
+        final double MAX_POS_RELEASE = 0.9;
+        final double MIN_POS_RELEASE = 0.516;
 
         double  position = MIN_POS_TILT;
 
@@ -201,11 +201,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
             //speed code
             if (gamepad1.dpad_right && !changed2) {
-                if (speed == 0.5){
+                if (speed == 0.7){
                     speed = 1;
                 }
                 else if (speed == 1){
-                    speed = 0.5;
+                    speed = 0.7;
                 }
                 changed2 = true;
 
@@ -216,6 +216,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             //spinny code
             if (gamepad2.a == true){
                 spinFactor = 0.87;
+                servoRelease.setPosition(MAX_POS_RELEASE);
+
             }
             else if (gamepad2.b == true){
                 spinFactor = -0.87;
@@ -255,11 +257,13 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
             // This servo code times the movement of the servos such
             // that one will finish before the other one (tilt then release)
-            if (!gamepad2.y) {
+            if (!gamepad2.right_bumper) {
                 mode = 1;
                 time = timeSet;
                 servoTilt.setPosition(MIN_POS_TILT);
-                servoRelease.setPosition(MIN_POS_RELEASE);
+                if (!gamepad2.a) {
+                    servoRelease.setPosition(MIN_POS_RELEASE);
+                }
             } else {
                 if (mode == 1) {
                     servoTilt.setPosition(MAX_POS_TILT);
