@@ -105,8 +105,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
         final int    CYCLE_MS    =   50;     // period of each cycle
         final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
         final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.9;
-        final double MIN_POS_RELEASE = 0.516;
+        final double MAX_POS_RELEASE = 0.69;
+        final double MIN_POS_RELEASE = 0.429;
 
         double  position = MIN_POS_TILT;
 
