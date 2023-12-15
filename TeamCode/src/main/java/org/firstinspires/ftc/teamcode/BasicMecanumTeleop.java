@@ -39,33 +39,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
-/*
- * This file contains an example of a Linear "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When a selection is made from the menu, the corresponding OpMode is executed.
- *
- * This particular OpMode illustrates driving a 4-motor Omni-Directional (or Holonomic) robot.
- * This code will work with either a Mecanum-Drive or an X-Drive train.
- * Both of these drives are illustrated at https://gm0.org/en/latest/docs/robot-design/drivetrains/holonomic.html
- * Note that a Mecanum drive must display an X roller-pattern when viewed from above.
- *
- * Also note that it is critical to set the correct rotation direction for each motor.  See details below.
- *
- * Holonomic drives provide the ability for the robot to move in three axes (directions) simultaneously.
- * Each motion axis is controlled by one Joystick axis.
- *
- * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
- * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
- * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
- *
- * This code is written assuming that the right-side motors need to be reversed for the robot to drive forward.
- * When you first test your robot, if it moves backward when you push the left stick forward, then you must flip
- * the direction of all 4 motors (see code below).
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
 
 @TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
 //@Disabled
@@ -99,16 +72,18 @@ public class BasicMecanumTeleop extends LinearOpMode {
         servoTilt = hardwareMap.get(Servo.class, "servo_motor");
         servoRelease = hardwareMap.get(Servo.class, "servo_release");
 
-        // Servo
+        // Servo Values
 
         final double INCREMENT   = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int    CYCLE_MS    =   50;     // period of each cycle
         final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
         final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.69;
-        final double MIN_POS_RELEASE = 0.429;
+        final double MAX_POS_RELEASE = 0.69;    // Highest position (all pixels released)
+        final double MID_POS_RELEASE = 0.5;     // Middle position (1 pixel released)
+        final double MIN_POS_RELEASE = 0.429;   // Lowest position (default)
 
-        double  position = MIN_POS_TILT;
+        double  tiltServoPos = MIN_POS_TILT;
+        double releaseServoPos = MIN_POS_RELEASE;
 
         double mode = 1;    // For the timing between the servos
         double timeSet = 80;
@@ -126,9 +101,6 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         //Spin and spin toggle
         double spinFactor = 0;
-        double extendFactor = 0;
-        double spinToggle = 1;
-        boolean changed3 = false;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -157,6 +129,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         waitForStart();
         runtime.reset();
+
+        // Set the starting positions of the servos
+        servoTilt.setPosition(tiltServoPos);
+        servoRelease.setPosition(releaseServoPos);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -190,7 +166,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
-            // Toggle code
+            // Toggle code (flip driver controls)
             if (gamepad1.dpad_left && !changed1) {
                 Toggle = Toggle * -1;
                 changed1 = true;
@@ -199,7 +175,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 changed1 = false;
             }
 
-            //speed code
+            //speed code (slow down the robot controls)
             if (gamepad1.dpad_right && !changed2) {
                 if (speed == 0.7){
                     speed = 1;
@@ -213,51 +189,39 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 changed2 = false;
             }
 
-            //spinny code
-            if (gamepad2.a == true){
+            //spinny code (intake motor)
+            if (gamepad2.a){
                 spinFactor = 0.87;
                 servoRelease.setPosition(MAX_POS_RELEASE);
-
             }
-            else if (gamepad2.b == true){
+            else if (gamepad2.b){
                 spinFactor = -0.87;
             }
             else{
                 spinFactor = 0;
             }
 
-            //extendy code
-            if (gamepad2.right_bumper == true){
-                extendFactor = .5;
+            // Arm servo code (tilt mechanism)
+            if (gamepad2.right_bumper && !gamepad2.dpad_down){
+                servoTilt.setPosition(MAX_POS_TILT);
             }
-            else if (gamepad2.left_bumper == true){
-                extendFactor = -.5;
-            }
-            else{
-                extendFactor = 0;
+            else if (gamepad2.left_bumper){
+                servoTilt.setPosition(MIN_POS_TILT);
             }
 
-            //Servo
-            /*if (gamepad2.y) {
-                position = MAX_POS_TILT;
-                if (position >= MAX_POS_TILT){
-                    position = MAX_POS_TILT;
-                }
+            // Release servo code (dpad controls)
+            if (gamepad2.dpad_down) {
+                servoTilt.setPosition(MIN_POS_TILT);
+                servoRelease.setPosition(MIN_POS_RELEASE);
+            } else if (gamepad2.dpad_right) {
+                servoRelease.setPosition(MID_POS_RELEASE);
+            } else if (gamepad2.dpad_up) {
                 servoRelease.setPosition(MAX_POS_RELEASE);
             }
 
-
-            else {
-                position = MIN_POS_TILT;
-                if (position <= MIN_POS_TILT){
-                    position = MIN_POS_TILT;
-                }
-                servoRelease.setPosition(MIN_POS_RELEASE);
-            }*/
-
             // This servo code times the movement of the servos such
             // that one will finish before the other one (tilt then release)
-            if (!gamepad2.right_bumper) {
+            /*if (!gamepad2.right_bumper) {
                 mode = 1;
                 time = timeSet;
                 servoTilt.setPosition(MIN_POS_TILT);
@@ -275,42 +239,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
                     time = timeSet;
                     mode = 2;
                 }
-            }
+            }*/
 
-
-            // Display the current value
-            //telemetry.addData("Servo Position", "%5.2f", position);
-            //telemetry.update();
-
-            // Set the servo to the new position and pause;
-            //servoTilt.setPosition(position);            ################# Uncheck later?
-            //sleep(CYCLE_MS);
-            idle();
-
-
-
-
-
-
-
-
-
-            // This is test code:
-            //
-            // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run FORWARD.
-            //   1) First get all the motors to take to correct positions on the robot
-            //      by adjusting your Robot Configuration if necessary.
-            //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
-            // Once the correct motors move in the correct direction re-comment this code.
-
-            /*
-            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
+            //idle();
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower * speed);
@@ -326,7 +257,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Servo Position", "%5.2f", position);
+            telemetry.addData("Tilt Servo Position", "%5.2f", tiltServoPos);
+            telemetry.addData("Release Servo Position", "%5.2f", releaseServoPos);
             telemetry.addData("Currently at",  "%7d",
                     -1 * extendMotor.getCurrentPosition());
             telemetry.update();
