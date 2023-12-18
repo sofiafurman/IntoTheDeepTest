@@ -38,7 +38,7 @@ public class ServoTester extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
         extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
-        servoMotor = hardwareMap.get(Servo.class, "servo_motor");
+        servoMotor = hardwareMap.get(Servo.class, "servo_release");
 
 
         telemetry.addData("Status", "Initialized");
