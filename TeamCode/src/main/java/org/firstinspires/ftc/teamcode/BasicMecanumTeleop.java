@@ -199,6 +199,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
             else{
                 spinFactor = 0;
+                servoRelease.setPosition(MIN_POS_RELEASE);
             }
 
             // Arm servo code (tilt mechanism)
