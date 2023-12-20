@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Robot: Auto Blue Right", group="Robot")
@@ -13,12 +14,24 @@ public class AutoBlueRight extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 3.779528;
     static final double COUNTS_PER_INCH = 537.6898395722 / WHEEL_DIAMETER_INCHES / 3.1415;
     static final double STRAFE_COUNTS_PER_INCH = 537 / 10.3775;
+    static final double TURN_COUNTS_PER_DEGREE = 3836.0 / 360;
 
     // Define the motors
     private DcMotor rightFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor leftFrontDrive = null;
     private DcMotor rightBackDrive = null;
+
+    private DcMotor spinMotor = null;
+    private DcMotor extendMotor = null;
+    private Servo servoTilt = null;
+    private Servo servoRelease = null;
+
+    final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
+    final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
+    final double MAX_POS_RELEASE = 0.69;    // Highest position (all pixels released)
+    final double MID_POS_RELEASE = 0.5;     // Middle position (1 pixel released)
+    final double MIN_POS_RELEASE = 0.429;   // Lowest position (default)
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -31,6 +44,11 @@ public class AutoBlueRight extends LinearOpMode {
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+
+        spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
+        extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
+        servoTilt = hardwareMap.get(Servo.class, "servo_motor");
+        servoRelease = hardwareMap.get(Servo.class, "servo_release");
 
         // Set directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -52,9 +70,18 @@ public class AutoBlueRight extends LinearOpMode {
         waitForStart(); // Waiting for start button
         runtime.reset();
 
-        // AUTO COMMANDS:
-        encoderStrafe(24*2 + 4, .2);
-        encoderDrive(24*3 + 10, 24*3 + 10, .5);
+        // Reset servos
+        servoTilt.setPosition(MIN_POS_TILT);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+
+
+        ///////// AUTO COMMANDS \\\\\\\\\\
+        encoderTurn(90, .3);
+        encoderTurn(-90, .3);
+        encoderTurn(45, .3);
+        encoderTurn(-45, .3);
+
+
 
 
         // Let drive know when finished
@@ -94,7 +121,7 @@ public class AutoBlueRight extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 500);
         }
     }
 
@@ -109,19 +136,45 @@ public class AutoBlueRight extends LinearOpMode {
         if (opModeIsActive()) {
             // Set targets using conversion factor to turn inches into encoder counts
             resetEncoders();
-            double newTarget = (targetIn * STRAFE_COUNTS_PER_INCH);
+            int newTarget = (int)(targetIn * STRAFE_COUNTS_PER_INCH);
 
-            rightFrontTarget = -(int)newTarget;
+            rightFrontTarget = -newTarget;
             rightFrontDrive.setTargetPosition(rightFrontTarget);
-            leftBackTarget = -(int)newTarget;
+            leftBackTarget = -newTarget;
             leftBackDrive.setTargetPosition(leftBackTarget);
-            rightBackTarget = (int)newTarget;
+            rightBackTarget = newTarget;
             rightBackDrive.setTargetPosition(rightBackTarget);
-            leftFrontTarget = (int)newTarget;
+            leftFrontTarget = newTarget;
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 500);
+        }
+    }
+
+    public void encoderTurn(double angle, double speed) {
+        // This function will turn the robot to an exact angle
+        // to the best ability of the GoBilda encoders.
+        int leftBackTarget;
+        int leftFrontTarget;
+        int rightBackTarget;
+        int rightFrontTarget;
+
+        if (opModeIsActive()) {
+            resetEncoders();
+            int newTarget = (int)(angle * TURN_COUNTS_PER_DEGREE);
+
+            rightFrontTarget = -newTarget;
+            rightFrontDrive.setTargetPosition(rightFrontTarget);
+            leftBackTarget = newTarget;
+            leftBackDrive.setTargetPosition(leftBackTarget);
+            rightBackTarget = -newTarget;
+            rightBackDrive.setTargetPosition(rightBackTarget);
+            leftFrontTarget = newTarget;
+            leftFrontDrive.setTargetPosition(leftFrontTarget);
+
+            // Run
+            startWaitFinish(speed, 500);
         }
     }
 
