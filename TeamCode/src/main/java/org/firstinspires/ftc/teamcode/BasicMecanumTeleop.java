@@ -79,9 +79,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
         final int CYCLE_MS = 50;     // period of each cycle
         final double MAX_POS_TILT = 0.73;     // Maximum rotational position
         final double MIN_POS_TILT = 0.413;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.69;    // Highest position (all pixels released)
-        final double MID_POS_RELEASE = 0.5;     // Middle position (1 pixel released)
-        final double MIN_POS_RELEASE = 0.3;   // Lowest position (default) OG .429
+        final double MAX_POS_RELEASE = 0.5;    // Highest position (all pixels released)
+        final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
+        final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
 
         double extendMultiplier = 1;
 
@@ -104,6 +104,17 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         //Spin and spin toggle
         double spinFactor = 0;
+
+        // Level
+        int levelZero = -5;
+        int levelOne = -1100;
+        int levelTwo = -1425;
+        int levelThree = -1825;
+        int currentPos = levelZero;
+        boolean changed3 = false;
+        boolean changed4 = false;
+        boolean extendToggle = false;
+        boolean changed5 = false;
 
 
         // ########################################################################################
@@ -129,7 +140,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
 
 
-        //extendMotor.setPower(gamepad2.right_stick_y);
+
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -143,22 +154,75 @@ public class BasicMecanumTeleop extends LinearOpMode {
         servoTilt.setPosition(tiltServoPos);
         servoRelease.setPosition(MIN_POS_RELEASE);
 
+        // Set starting position of extend motor
+        extendMotor.setTargetPosition(levelZero);
+        //currentPos is levelZero
+
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            if (gamepad2.dpad_left && !changed5) {
+                extendToggle = !extendToggle;
+                changed5 = true;
+                extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            if(gamepad2.x){
-                extendMotor.setTargetPosition(-1261);
-                extendMotor.setPower(0.85);
-            }
-            if(gamepad2.y){
-                extendMotor.setTargetPosition(-2914);
-                extendMotor.setPower(0.85);
+            } else if (!gamepad2.dpad_left) {
+                changed5 = false;
             }
 
-            extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            if(!extendToggle) {
+                if (gamepad2.right_bumper && !changed3) {
+                    if (currentPos == levelZero) {
+                        currentPos = levelOne;
+
+                    } else if (currentPos == levelOne) {
+                        currentPos = levelTwo;
+
+                    } else if (currentPos == levelTwo) {
+                        currentPos = levelThree;
+
+                    }
+                    extendMotor.setTargetPosition(currentPos);
+                    extendMotor.setPower(0.7);
+                    changed3 = true;
+
+                } else if (!gamepad2.right_bumper) {
+                    changed3 = false;
+                }
+
+
+                if (gamepad2.left_bumper && !changed4) {
+                    if (currentPos == levelThree) {
+                        currentPos = levelTwo;
+
+                    } else if (currentPos == levelTwo) {
+                        currentPos = levelOne;
+
+                    } else if (currentPos == levelOne) {
+                        currentPos = levelZero;
+
+                    }
+                    extendMotor.setTargetPosition(currentPos);
+                    extendMotor.setPower(0.7);
+                    changed4 = true;
+
+                } else if (!gamepad2.left_bumper) {
+                    changed4 = false;
+                }
+                extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+
+            else if(extendToggle) {
+                extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                extendMotor.setPower(gamepad2.left_stick_y);
+
+            }
+
+
+
 
 
             double max;
@@ -223,18 +287,22 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             // Arm servo code (tilt mechanism)
-            if (gamepad2.right_bumper && !gamepad2.dpad_down) {
+
+            if (gamepad2.y && !gamepad2.dpad_down) {
+
                 servoTilt.setPosition(MAX_POS_TILT);
-            } else if (gamepad2.left_bumper) {
+            } else if (gamepad2.x) {
                 servoTilt.setPosition(MIN_POS_TILT);
             }
+
 
             // Release servo code (dpad controls)
             if (gamepad2.dpad_down) {
                 servoTilt.setPosition(MIN_POS_TILT);
                 servoRelease.setPosition(MIN_POS_RELEASE);
-                extendMotor.setTargetPosition(0);
-                extendMotor.setPower(0.85);
+                extendMotor.setTargetPosition(-5);
+                currentPos = levelZero;
+                extendMotor.setPower(0.7);
             } else if (gamepad2.dpad_right) {
                 servoRelease.setPosition(MID_POS_RELEASE);
             } else if (gamepad2.dpad_up) {
@@ -284,7 +352,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         leftBackDrive.setPower(leftBackPower * speed);
         rightBackDrive.setPower(rightBackPower * speed);
         spinMotor.setPower(spinFactor);
-        //extendMotor.setPower(gamepad2.right_stick_y);
+        extendMotor.setPower(0.7);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("This is the toggle value", Toggle);
@@ -294,6 +362,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.addData("Tilt Servo Position", "%5.2f", tiltServoPos);
         telemetry.addData("Currently at", "%7d", extendMotor.getCurrentPosition() * -1);
+        telemetry.addData("Target pos", "%7d", currentPos);
         telemetry.update();
             }
         }
