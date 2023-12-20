@@ -29,22 +29,22 @@ public class AutoBlueRight extends LinearOpMode {
 
     final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
     final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
-    final double MAX_POS_RELEASE = 0.69;    // Highest position (all pixels released)
-    final double MID_POS_RELEASE = 0.5;     // Middle position (1 pixel released)
-    final double MIN_POS_RELEASE = 0.429;   // Lowest position (default)
+    final double MAX_POS_RELEASE = 0.4;    // Highest position (all pixels released)
+    final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
+    final double MIN_POS_RELEASE = 0.31;   // Lowest position (default)
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
-        // As of 10.31.23 the following order matches the order
-        // the motors are plugged into the ports (0-3)
+        // Set up the drive motors
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
+        // Servos, intake, and slide motors
         spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
         extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
         servoTilt = hardwareMap.get(Servo.class, "servo_motor");
@@ -62,9 +62,10 @@ public class AutoBlueRight extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Give phone an update
-        telemetry.addData("Status", "Going to crap");
+        telemetry.addData("Status", "'Dis piece o' s*** is READY baby.");
         telemetry.update();
 
         waitForStart(); // Waiting for start button
@@ -76,12 +77,24 @@ public class AutoBlueRight extends LinearOpMode {
 
 
         ///////// AUTO COMMANDS \\\\\\\\\\
-        encoderTurn(90, .3);
-        encoderTurn(-90, .3);
-        encoderTurn(45, .3);
-        encoderTurn(-45, .3);
+        encoderDrive(30, 30, .3);     // Drive and push over game piece if in the way
+        encoderDrive(-2, -2, .3);     // Back up a tiny bit
+        spinMotor.setPower(-.3);                        // Spit out pixel
+        encoderDrive(-10, -10, .3);   // Backup to make sure it's out
+        spinMotor.setPower(0);
+        sleep(500);
 
+        encoderStrafe(20, .3);            // Get to middle of field
+        encoderDrive(31, 31, .3);
 
+        encoderStrafe(-106, .4);          // Strafe across the field
+        encoderDrive(-18, -18, .4);  // Align with the board
+        encoderTurn(90, .2);               // Ready to score
+
+        placePixel(1000, .7);           // Score! (hopefully)
+
+        encoderStrafe(-12, .3);          // Park and finish
+        //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
         // Let drive know when finished
@@ -92,12 +105,34 @@ public class AutoBlueRight extends LinearOpMode {
         sleep(5000); // Give 5 sec to view message before finishing
     }
 
+    private void placePixel(int height, double slideSpeed) {
+        // This function extends the slides and drops a pixel onto the board
+        // First, move slide to a desired height
+        extendMotor.setTargetPosition(-height); // slide moves in negative direction
+        extendMotor.setPower(slideSpeed);
+        extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(1300);
+        // Release pixel
+        servoTilt.setPosition(MAX_POS_TILT);
+        sleep(500);
+        servoRelease.setPosition(MAX_POS_RELEASE);
+        sleep(500);
+        // Reset
+        extendMotor.setTargetPosition(0);
+        servoTilt.setPosition(MIN_POS_TILT);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(1000);
+        extendMotor.setPower(0);        // (Turn off slide)
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     private void resetEncoders() {
         // Reset encoders and set their encoder mode
         leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void encoderDrive(double leftIn, double rightIn, double speed) {
