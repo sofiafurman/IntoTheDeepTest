@@ -77,10 +77,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         final double INCREMENT = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int CYCLE_MS = 50;     // period of each cycle
-        final double MAX_POS_TILT = 0.73;     // Maximum rotational position
+        final double MAX_POS_TILT = 0.72;     // Maximum rotational position 65
         final double MIN_POS_TILT = 0.413;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.5;    // Highest position (all pixels released)
-        final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
+        //final double MAX_POS_RELEASE = 0.35;    // Highest position (all pixels released) 0.5
+        final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
         final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
 
         double extendMultiplier = 1;
@@ -163,7 +163,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            /*
             if (gamepad2.dpad_left && !changed5) {
+
                 extendToggle = !extendToggle;
                 changed5 = true;
                 extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -172,6 +174,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
             } else if (!gamepad2.dpad_left) {
                 changed5 = false;
             }
+
+             */
 
             if(!extendToggle) {
                 if (gamepad2.right_bumper && !changed3) {
@@ -279,7 +283,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             //spinny code (intake motor)
             if (gamepad2.a) {
                 spinFactor = 0.87;
-                servoRelease.setPosition(MAX_POS_RELEASE);
+                servoRelease.setPosition(MID_POS_RELEASE);
             } else if (gamepad2.b) {
                 spinFactor = -0.87;
             } else {
@@ -288,10 +292,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
             // Arm servo code (tilt mechanism)
 
-            if (gamepad2.y && !gamepad2.dpad_down) {
+            if (gamepad2.y && !gamepad2.dpad_down && (currentPos != levelZero) ) {
 
                 servoTilt.setPosition(MAX_POS_TILT);
-            } else if (gamepad2.x) {
+            } else if (gamepad2.x && (currentPos != levelZero) ) {
                 servoTilt.setPosition(MIN_POS_TILT);
             }
 
@@ -303,11 +307,15 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 extendMotor.setTargetPosition(-5);
                 currentPos = levelZero;
                 extendMotor.setPower(0.7);
-            } else if (gamepad2.dpad_right) {
+            } else if (gamepad2.dpad_right && (currentPos != levelZero) ) {
                 servoRelease.setPosition(MID_POS_RELEASE);
-            } else if (gamepad2.dpad_up) {
+            }
+            /*
+            else if (gamepad2.dpad_up) {
                 servoRelease.setPosition(MAX_POS_RELEASE);
             }
+
+             */
 
             /*
             if (extendMotor.getCurrentPosition() == 0) {
