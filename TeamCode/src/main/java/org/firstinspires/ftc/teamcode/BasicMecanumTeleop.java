@@ -63,8 +63,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
@@ -72,18 +72,21 @@ public class BasicMecanumTeleop extends LinearOpMode {
         servoTilt = hardwareMap.get(Servo.class, "servo_motor");
         servoRelease = hardwareMap.get(Servo.class, "servo_release");
 
+
         // Servo Values
 
-        final double INCREMENT   = 0.001;     // amount to slew servo each CYCLE_MS cycle
-        final int    CYCLE_MS    =   50;     // period of each cycle
-        final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
-        final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.69;    // Highest position (all pixels released)
-        final double MID_POS_RELEASE = 0.5;     // Middle position (1 pixel released)
-        final double MIN_POS_RELEASE = 0.429;   // Lowest position (default)
+        final double INCREMENT = 0.001;     // amount to slew servo each CYCLE_MS cycle
+        final int CYCLE_MS = 50;     // period of each cycle
+        final double MAX_POS_TILT = 0.72;     // Maximum rotational position 65
+        final double MIN_POS_TILT = 0.413;     // Minimum rotational position
+        final double MAX_POS_RELEASE = 0.5;    // Highest position (all pixels released)
+        final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
+        final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
 
-        double  tiltServoPos = MIN_POS_TILT;
-        double releaseServoPos = MIN_POS_RELEASE;
+        double extendMultiplier = 1;
+
+        double tiltServoPos = MIN_POS_TILT;
+
 
         double mode = 1;    // For the timing between the servos
         double timeSet = 80;
@@ -101,6 +104,18 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         //Spin and spin toggle
         double spinFactor = 0;
+
+        // Level
+        int levelZero = -5;
+        int levelOne = -1100;
+        int levelTwo = -1425;
+        int levelThree = -1825;
+        int currentPos = levelZero;
+        boolean changed3 = false;
+        boolean changed4 = false;
+        boolean extendToggle = false;
+        boolean changed5 = false;
+
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -122,9 +137,14 @@ public class BasicMecanumTeleop extends LinearOpMode {
         extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
+
+
+
+
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Starting at",  "%7d", -1 * extendMotor.getCurrentPosition());
+        //telemetry.addData("Starting at",  "%7d", -1 * extendMotor.getCurrentPosition());
         telemetry.update();
 
         waitForStart();
@@ -132,25 +152,97 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         // Set the starting positions of the servos
         servoTilt.setPosition(tiltServoPos);
-        servoRelease.setPosition(releaseServoPos);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+
+        // Set starting position of extend motor
+        extendMotor.setTargetPosition(levelZero);
+        //currentPos is levelZero
+
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
+            /*
+            if (gamepad2.dpad_left && !changed5) {
+
+                extendToggle = !extendToggle;
+                changed5 = true;
+                extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            } else if (!gamepad2.dpad_left) {
+                changed5 = false;
+            }
+
+             */
+
+            if(!extendToggle) {
+                if (gamepad2.right_bumper && !changed3) {
+                    if (currentPos == levelZero) {
+                        currentPos = levelOne;
+
+                    } else if (currentPos == levelOne) {
+                        currentPos = levelTwo;
+
+                    } else if (currentPos == levelTwo) {
+                        currentPos = levelThree;
+
+                    }
+                    extendMotor.setTargetPosition(currentPos);
+                    extendMotor.setPower(0.7);
+                    changed3 = true;
+
+                } else if (!gamepad2.right_bumper) {
+                    changed3 = false;
+                }
+
+
+                if (gamepad2.left_bumper && !changed4) {
+                    if (currentPos == levelThree) {
+                        currentPos = levelTwo;
+
+                    } else if (currentPos == levelTwo) {
+                        currentPos = levelOne;
+
+                    } else if (currentPos == levelOne) {
+                        currentPos = levelZero;
+
+                    }
+                    extendMotor.setTargetPosition(currentPos);
+                    extendMotor.setPower(0.7);
+                    changed4 = true;
+
+                } else if (!gamepad2.left_bumper) {
+                    changed4 = false;
+                }
+                extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
+
+            else if(extendToggle) {
+                extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                extendMotor.setPower(gamepad2.left_stick_y);
+
+            }
+
+
+
+
+
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y * Toggle;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x * Toggle;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial = -gamepad1.left_stick_y * Toggle;  // Note: pushing stick forward gives negative value
+            double lateral = gamepad1.left_stick_x * Toggle;
+            double yaw = gamepad1.right_stick_x;
 
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
+            double leftFrontPower = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
-
+            double leftBackPower = axial - lateral + yaw;
+            double rightBackPower = axial + lateral - yaw;
 
 
             // Normalize the values so no wheel power exceeds 100%
@@ -160,10 +252,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
             max = Math.max(max, Math.abs(rightBackPower));
 
             if (max > 1.0) {
-                leftFrontPower  /= max;
+                leftFrontPower /= max;
                 rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
             }
 
             // Toggle code (flip driver controls)
@@ -171,57 +263,83 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 Toggle = Toggle * -1;
                 changed1 = true;
 
-            } else if (!gamepad1.dpad_left){
+            } else if (!gamepad1.dpad_left) {
                 changed1 = false;
             }
 
             //speed code (slow down the robot controls)
             if (gamepad1.dpad_right && !changed2) {
-                if (speed == 0.7){
+                if (speed == 0.7) {
                     speed = 1;
-                }
-                else if (speed == 1){
+                } else if (speed == 1) {
                     speed = 0.7;
                 }
                 changed2 = true;
 
-            } else if (!gamepad1.dpad_right){
+            } else if (!gamepad1.dpad_right) {
                 changed2 = false;
             }
 
             //spinny code (intake motor)
-            if (gamepad2.a){
+            if (gamepad2.a) {
                 spinFactor = 0.87;
-                servoRelease.setPosition(MAX_POS_RELEASE);
-            }
-            else if (gamepad2.b){
+                servoRelease.setPosition(MAX_POS_RELEASE );
+            } else if (gamepad2.b) {
                 spinFactor = -0.87;
-            }
-            else{
+            } else {
                 spinFactor = 0;
+            }
+
+            //reset servo pos to zero when no intake
+            if (!gamepad2.a && currentPos == levelZero){
                 servoRelease.setPosition(MIN_POS_RELEASE);
             }
 
             // Arm servo code (tilt mechanism)
-            if (gamepad2.right_bumper && !gamepad2.dpad_down){
+
+            if (gamepad2.y && !gamepad2.dpad_down && (currentPos != levelZero) ) {
+
                 servoTilt.setPosition(MAX_POS_TILT);
-            }
-            else if (gamepad2.left_bumper){
+            } else if (gamepad2.x && (currentPos != levelZero) ) {
                 servoTilt.setPosition(MIN_POS_TILT);
             }
+
 
             // Release servo code (dpad controls)
             if (gamepad2.dpad_down) {
                 servoTilt.setPosition(MIN_POS_TILT);
                 servoRelease.setPosition(MIN_POS_RELEASE);
-            } else if (gamepad2.dpad_right) {
+                extendMotor.setTargetPosition(-5);
+                currentPos = levelZero;
+                extendMotor.setPower(0.7);
+            } else if (gamepad2.dpad_right && (currentPos != levelZero) ) {
                 servoRelease.setPosition(MID_POS_RELEASE);
-            } else if (gamepad2.dpad_up) {
+            }
+
+
+
+
+            else if (gamepad2.dpad_up) {
                 servoRelease.setPosition(MAX_POS_RELEASE);
             }
 
-            // This servo code times the movement of the servos such
-            // that one will finish before the other one (tilt then release)
+
+
+            /*
+            if (extendMotor.getCurrentPosition() == 0) {
+                extendMultiplier = 1;
+            } else if (extendMotor.getCurrentPosition() == 2914) {
+                extendMultiplier = -1;
+            }
+            */
+
+
+
+
+
+
+        // This servo code times the movement of the servos such
+        // that one will finish before the other one (tilt then release)
             /*if (!gamepad2.right_bumper) {
                 mode = 1;
                 time = timeSet;
@@ -242,26 +360,30 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 }
             }*/
 
-            //idle();
+        //idle();
 
-            // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower * speed);
-            rightFrontDrive.setPower(rightFrontPower * speed);
-            leftBackDrive.setPower(leftBackPower * speed);
-            rightBackDrive.setPower(rightBackPower * speed);
-            spinMotor.setPower(spinFactor);
-            extendMotor.setPower(gamepad2.right_stick_y);
+        // Send calculated power to wheels
+        leftFrontDrive.setPower(leftFrontPower * speed);
+        rightFrontDrive.setPower(rightFrontPower * speed);
+        leftBackDrive.setPower(leftBackPower * speed);
+        rightBackDrive.setPower(rightBackPower * speed);
+        spinMotor.setPower(spinFactor);
+        extendMotor.setPower(0.7);
 
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("This is the toggle value", Toggle);
-            telemetry.addData("This is the speed multiplier", speed);
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Tilt Servo Position", "%5.2f", tiltServoPos);
-            telemetry.addData("Release Servo Position", "%5.2f", releaseServoPos);
-            telemetry.addData("Currently at",  "%7d",
-                    -1 * extendMotor.getCurrentPosition());
-            telemetry.update();
+        // Show the elapsed game time and wheel power.
+        telemetry.addData("This is the toggle value", Toggle);
+        telemetry.addData("This is the speed multiplier", speed);
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+        telemetry.addData("Tilt Servo Position", "%5.2f", tiltServoPos);
+        telemetry.addData("Currently at", "%7d", extendMotor.getCurrentPosition() * -1);
+        telemetry.addData("Target pos", "%7d", currentPos);
+        telemetry.update();
+            }
         }
-    }}
+    }
+
+
+
+
