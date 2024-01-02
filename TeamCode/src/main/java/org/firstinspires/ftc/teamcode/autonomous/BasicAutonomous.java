@@ -57,16 +57,16 @@ public class BasicAutonomous extends LinearOpMode {
 
         // Set target encoder counts. 1 rotation is...
         // 1120 Counts (AndyMark) or 1440 Counts (Tetrix) or ~538 Counts (GoBilda)
-        leftFrontDrive.setTargetPosition(-537);
-        rightBackDrive.setTargetPosition(-537);   // (1 wheel turn)
-        rightFrontDrive.setTargetPosition(537);
-        leftBackDrive.setTargetPosition(537);
+        leftFrontDrive.setTargetPosition(-3836*4);
+        rightBackDrive.setTargetPosition(3836*4);   // (1 wheel turn)
+        rightFrontDrive.setTargetPosition(3836*4);
+        leftBackDrive.setTargetPosition(-3836*4);
 
         // Turn on motors
-        leftFrontDrive.setPower(.2);
-        rightBackDrive.setPower(.2);
-        rightFrontDrive.setPower(.2);
-        leftBackDrive.setPower(.2);
+        leftFrontDrive.setPower(.3);
+        rightBackDrive.setPower(.3);
+        rightFrontDrive.setPower(.3);
+        leftBackDrive.setPower(.3);
 
         // Set motor mode to use encoders
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);

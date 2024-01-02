@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Robot: Auto Red Left", group="Robot")
@@ -13,12 +14,25 @@ public class AutoRedLeft extends LinearOpMode {
     static final double WHEEL_DIAMETER_INCHES = 3.779528;
     static final double COUNTS_PER_INCH = 537.6898395722 / WHEEL_DIAMETER_INCHES / 3.1415;
     static final double STRAFE_COUNTS_PER_INCH = 537 / 10.3775;
+    static final double TURN_COUNTS_PER_DEGREE = 3836.0 / 360;
 
     // Define the motors
     private DcMotor rightFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor leftFrontDrive = null;
     private DcMotor rightBackDrive = null;
+
+    private DcMotor spinMotor = null;
+    private DcMotor extendMotor = null;
+    private Servo servoTilt = null;
+    private Servo servoRelease = null;
+
+    final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
+    final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
+    final double MAX_POS_RELEASE = 0.4;    // Highest position (all pixels released)
+    final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
+    final double MIN_POS_RELEASE = 0.31;   // Lowest position (default)
+
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -32,6 +46,12 @@ public class AutoRedLeft extends LinearOpMode {
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
+        // Servos, intake, and slide motors
+        spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
+        extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
+        servoTilt = hardwareMap.get(Servo.class, "servo_motor");
+        servoRelease = hardwareMap.get(Servo.class, "servo_release");
+
         // Set directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -44,17 +64,39 @@ public class AutoRedLeft extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Give phone an update
-        telemetry.addData("Status", "Going to crap");
+        telemetry.addData("Status", "'Dis piece o' s*** is READY baby.");
         telemetry.update();
 
         waitForStart(); // Waiting for start button
         runtime.reset();
 
-        // AUTO COMMANDS:
-        encoderStrafe(-24*2 - 4, .2);
-        encoderDrive(24*3 + 10, 24*3 + 10, .5);
+        // Reset servos
+        servoTilt.setPosition(MIN_POS_TILT);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+
+        ///////// AUTO COMMANDS \\\\\\\\\\
+        encoderDrive(8, 8, .4);
+        encoderStrafe(3, .3);
+        encoderDrive(18, 18, .3);     // Drive and push over game piece if in the way
+        spinMotor.setPower(-.4);                        // Spit out pixel
+        sleep(400);
+        spinMotor.setPower(0);
+        encoderDrive(-12, -12, .3);   // Backup to make sure it's out
+
+        encoderStrafe(-20, .3);            // Get to middle of field
+        encoderDrive(28, 28, .2);
+        encoderTurn(-90, .2);
+
+        encoderDrive(-104, -104, .4);          // Strafe across the field
+        encoderStrafe(-24, .3);  // Align with the board
+
+        placePixel(1100, .7);           // Score! (hopefully)
+
+        encoderStrafe(24, .3);          // Park and finish
+        //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
         // Let drive know when finished
@@ -65,12 +107,34 @@ public class AutoRedLeft extends LinearOpMode {
         sleep(5000); // Give 5 sec to view message before finishing
     }
 
+    private void placePixel(int height, double slideSpeed) {
+        // This function extends the slides and drops a pixel onto the board
+        // First, move slide to a desired height
+        extendMotor.setTargetPosition(-height); // slide moves in negative direction
+        extendMotor.setPower(slideSpeed);
+        extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(1300);
+        // Release pixel
+        servoTilt.setPosition(MAX_POS_TILT);
+        sleep(500);
+        servoRelease.setPosition(MAX_POS_RELEASE);
+        sleep(500);
+        // Reset
+        extendMotor.setTargetPosition(0);
+        servoTilt.setPosition(MIN_POS_TILT);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(1000);
+        extendMotor.setPower(0);        // (Turn off slide)
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     private void resetEncoders() {
         // Reset encoders and set their encoder mode
         leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void encoderDrive(double leftIn, double rightIn, double speed) {
@@ -94,7 +158,7 @@ public class AutoRedLeft extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 500);
         }
     }
 
@@ -121,7 +185,33 @@ public class AutoRedLeft extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 500);
+        }
+    }
+
+    public void encoderTurn(double angle, double speed) {
+        // This function will turn the robot to an exact angle
+        // to the best ability of the GoBilda encoders.
+        int leftBackTarget;
+        int leftFrontTarget;
+        int rightBackTarget;
+        int rightFrontTarget;
+
+        if (opModeIsActive()) {
+            resetEncoders();
+            int newTarget = (int)(angle * TURN_COUNTS_PER_DEGREE);
+
+            rightFrontTarget = -newTarget;
+            rightFrontDrive.setTargetPosition(rightFrontTarget);
+            leftBackTarget = newTarget;
+            leftBackDrive.setTargetPosition(leftBackTarget);
+            rightBackTarget = -newTarget;
+            rightBackDrive.setTargetPosition(rightBackTarget);
+            leftFrontTarget = newTarget;
+            leftFrontDrive.setTargetPosition(leftFrontTarget);
+
+            // Run
+            startWaitFinish(speed, 500);
         }
     }
 
