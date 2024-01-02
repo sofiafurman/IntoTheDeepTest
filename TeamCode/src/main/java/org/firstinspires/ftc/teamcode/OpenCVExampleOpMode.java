@@ -21,14 +21,14 @@ public class OpenCVExampleOpMode extends OpMode {
     static final int STREAM_WIDTH = 1920; // modify for your camera
     static final int STREAM_HEIGHT = 1080; // modify for your camera
     OpenCvWebcam webcam;
-    SamplePipeline pipeline;
+    Pipeline pipeline;
     @Override
     public void init() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         WebcamName webcamName = null;
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
-        pipeline = new SamplePipeline();
+        pipeline = new Pipeline();
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -49,24 +49,30 @@ public class OpenCVExampleOpMode extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("Image Analysis:",pipeline.getAnalysis());
+        telemetry.addData("Game Piece Location:",pipeline.getAnalysis());
         telemetry.update();
     }
 
 
 }
 
-class SamplePipeline extends OpenCvPipeline {
-
-    //Mat Binary = new Mat();
+class Pipeline extends OpenCvPipeline {
     Mat HSV = new Mat();
     Mat hsv1 = new Mat();
     Mat hsv2 = new Mat();
-    int avg;
+    int avgr;
+    int avgm;
+    int avgl;
     Scalar lowerBound;
     Scalar upperBound;
-
-
+    Mat RectR = new Mat();
+    Mat RectM = new Mat();
+    Mat RectL = new Mat();
+    Rect lrect = new Rect(220, 620, 500, 460);
+    Rect mrect = new Rect(800, 600, 500, 360);
+    Rect rrect = new Rect(1500, 620, 420, 460);
+    boolean debugview = true;
+    int returnlocation;
     /*
      * This function takes the RGB frame, converts to HSV,
      * and extracts the red color to the '' variable
@@ -84,6 +90,25 @@ class SamplePipeline extends OpenCvPipeline {
 
         Core.add(hsv1, hsv2, HSV);
     }
+    void drawRects(Mat input) {
+        Point ptl = new Point(290, 300);
+        Point ptm = new Point(970, 300);
+        Point ptr = new Point(1580, 300);
+        Scalar col = new Scalar(255);
+        Imgproc.putText(HSV, avgl + "", ptl, 1, 10, col, 5);
+        Imgproc.putText(HSV, avgm + "", ptm, 1, 10, col, 5);
+        Imgproc.putText(HSV, avgr + "", ptr, 1, 10, col, 5);
+        Imgproc.rectangle(HSV, lrect, col, 5);
+        Imgproc.rectangle(HSV, mrect, col, 5);
+        Imgproc.rectangle(HSV, rrect, col, 5);
+        if (avgl > avgm && avgl > avgr) {
+            Imgproc.rectangle(HSV, lrect, col, 10);
+        } else if (avgm > avgr) {
+            Imgproc.rectangle(HSV, mrect, col, 10);
+        } else {
+            Imgproc.rectangle(HSV, rrect, col, 10);
+        }
+    }
 
     @Override
     public void init(Mat firstFrame) {
@@ -93,25 +118,37 @@ class SamplePipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         inputToRedBinary(input);
+        RectL = HSV.submat(lrect);
+        RectM = HSV.submat(mrect);
+        RectR = HSV.submat(rrect);
         System.out.println("processing requested");
-        //avg = (int) Core.mean(HSV).val[0];
-        //Point pt = new Point(50,100);
-        Scalar col = new Scalar(255);
-        //Imgproc.putText(HSV, avg + "", pt, 1, 10, col, 5);
-        Rect lrect = new Rect(120, 250, 300, 300);
-        Imgproc.rectangle(HSV, lrect, col, 5);
-        Rect mrect = new Rect(900, 290, 250, 250);
-        Imgproc.rectangle(HSV, mrect, col, 5);
-        Rect rrect = new Rect(1650, 250, 300, 300);
-        Imgproc.rectangle(HSV, rrect, col, 5);
+        avgl = (int) Core.mean(RectL).val[0];
+        avgm = (int) Core.mean(RectM).val[0];
+        avgr = (int) Core.mean(RectR).val[0];
+        if(debugview) {
+            drawRects(HSV);
+        }
+        if (avgl > avgm && avgl > avgr) {
+            returnlocation = 1;
+        } else if (avgm > avgr) {
+            returnlocation = 2;
+        } else {
+            returnlocation = 3;
+        }
 
-        //HSV.release(); // don't leak memory! // lol nvm we leakin fs
-        hsv1.release(); // don't leak memory!
-        hsv2.release(); // don't leak memory!
-        //Binary.release();
-        return HSV;
+        hsv1.release();   // don't leak memory
+        hsv2.release();   //  do not leak memory
+        RectL.release();  //  |
+        RectM.release();  //  |
+        RectR.release();  //  V
+        if (debugview)
+            return HSV;
+        else {
+            HSV.release(); // don't leak memory
+            return input;
+        }
     }
     public int getAnalysis() {
-        return avg;
+        return returnlocation;
     }
 }
