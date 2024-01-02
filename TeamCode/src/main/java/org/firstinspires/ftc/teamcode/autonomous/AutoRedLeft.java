@@ -78,25 +78,24 @@ public class AutoRedLeft extends LinearOpMode {
         servoRelease.setPosition(MIN_POS_RELEASE);
 
         ///////// AUTO COMMANDS \\\\\\\\\\
-        encoderDrive(8, 8, .3);
+        encoderDrive(8, 8, .4);
         encoderStrafe(3, .3);
-        encoderDrive(20, 20, .3);     // Drive and push over game piece if in the way
-        spinMotor.setPower(-.3);                        // Spit out pixel
-        sleep(200);
+        encoderDrive(18, 18, .3);     // Drive and push over game piece if in the way
+        spinMotor.setPower(-.4);                        // Spit out pixel
+        sleep(400);
         spinMotor.setPower(0);
-        encoderDrive(-10, -10, .3);   // Backup to make sure it's out
+        encoderDrive(-12, -12, .3);   // Backup to make sure it's out
 
         encoderStrafe(-20, .3);            // Get to middle of field
-        encoderDrive(31, 31, .3);
+        encoderDrive(28, 28, .2);
         encoderTurn(-90, .2);
 
-        encoderDrive(-105, -105, .2);          // Strafe across the field
-        encoderStrafe(-18, .4);  // Align with the board
-        encoderTurn(-90, .2);               // Ready to score
+        encoderDrive(-104, -104, .4);          // Strafe across the field
+        encoderStrafe(-24, .3);  // Align with the board
 
-        placePixel(1200, .7);           // Score! (hopefully)
+        placePixel(1100, .7);           // Score! (hopefully)
 
-        encoderStrafe(-12, .3);          // Park and finish
+        encoderStrafe(24, .3);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
@@ -159,7 +158,7 @@ public class AutoRedLeft extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 500);
         }
     }
 
@@ -186,7 +185,7 @@ public class AutoRedLeft extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 500);
         }
     }
 

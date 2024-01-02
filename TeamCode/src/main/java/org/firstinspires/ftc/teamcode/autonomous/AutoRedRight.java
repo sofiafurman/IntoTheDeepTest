@@ -79,6 +79,7 @@ public class AutoRedRight extends LinearOpMode {
 
 
         ///////// AUTO COMMANDS \\\\\\\\\\
+        // Drop pixel
         encoderDrive(8, 8, .3);
         encoderStrafe(-3, .3);
         encoderDrive(20, 20, .3);
@@ -86,6 +87,14 @@ public class AutoRedRight extends LinearOpMode {
         sleep(200);
         spinMotor.setPower(0);
         encoderDrive(-10, -10, .3);
+
+        // Get in front of board
+        encoderStrafe(30, .3);
+        encoderDrive(7, 7, .3);
+        encoderTurn(-90, .2);
+        placePixel(1200, .7);
+        encoderStrafe(-20, .31);
+
         ////////// END OF AUTONOMOUS \\\\\\\\\
 
 
