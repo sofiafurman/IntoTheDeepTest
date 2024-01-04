@@ -77,9 +77,24 @@ public class AutoBlueLeft extends LinearOpMode {
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
 
-        // AUTO COMMANDS:
-        encoderStrafe(5.5, .2);
-        encoderDrive(24*2 - 5, 24*2 - 5, .5);
+
+        ////////// AUTO COMMANDS:
+        // Drop pixel
+        encoderDrive(8, 8, .3);
+        encoderStrafe(3, .3);
+        encoderDrive(20, 20, .3);
+        spinMotor.setPower(-.3);
+        encoderDrive(-10, -10, .3);
+        spinMotor.setPower(0);
+
+        // Get in front of board
+        encoderStrafe(-30, .3);
+        encoderDrive(8, 8, .3);
+        encoderTurn(90, .2);
+        encoderDrive(-12, -12, .2);
+        placePixel(940, .7);
+        encoderStrafe(20, .31);
+        /////////// END OF AUTO
 
 
         // Let drive know when finished
@@ -102,9 +117,10 @@ public class AutoBlueLeft extends LinearOpMode {
         servoRelease.setPosition(MAX_POS_RELEASE);
         sleep(500);
         // Reset
-        extendMotor.setTargetPosition(0);
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(300);
+        extendMotor.setTargetPosition(0);
         sleep(1000);
         extendMotor.setPower(0);        // (Turn off slide)
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -140,7 +156,7 @@ public class AutoBlueLeft extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -167,7 +183,7 @@ public class AutoBlueLeft extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -193,7 +209,7 @@ public class AutoBlueLeft extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 
