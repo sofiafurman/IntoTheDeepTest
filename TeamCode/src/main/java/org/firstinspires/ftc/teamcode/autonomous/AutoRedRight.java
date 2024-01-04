@@ -84,15 +84,15 @@ public class AutoRedRight extends LinearOpMode {
         encoderStrafe(-3, .3);
         encoderDrive(20, 20, .3);
         spinMotor.setPower(-.3);
-        sleep(200);
-        spinMotor.setPower(0);
         encoderDrive(-10, -10, .3);
+        spinMotor.setPower(0);
 
         // Get in front of board
         encoderStrafe(30, .3);
-        encoderDrive(7, 7, .3);
+        encoderDrive(8, 8, .3);
         encoderTurn(-90, .2);
-        placePixel(1200, .7);
+        encoderDrive(-12, -12, .2);
+        placePixel(940, .7);
         encoderStrafe(-20, .31);
 
         ////////// END OF AUTONOMOUS \\\\\\\\\
@@ -112,16 +112,17 @@ public class AutoRedRight extends LinearOpMode {
         extendMotor.setTargetPosition(-height); // slide moves in negative direction
         extendMotor.setPower(slideSpeed);
         extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        sleep(1300);
+        sleep(1000);
         // Release pixel
         servoTilt.setPosition(MAX_POS_TILT);
         sleep(500);
         servoRelease.setPosition(MAX_POS_RELEASE);
         sleep(500);
         // Reset
-        extendMotor.setTargetPosition(0);
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(300);
+        extendMotor.setTargetPosition(0);
         sleep(1000);
         extendMotor.setPower(0);        // (Turn off slide)
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -157,7 +158,7 @@ public class AutoRedRight extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -184,7 +185,7 @@ public class AutoRedRight extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -210,7 +211,7 @@ public class AutoRedRight extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
     public void startWaitFinish(double speed, long waitMillis) {
