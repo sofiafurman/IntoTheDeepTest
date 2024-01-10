@@ -78,24 +78,25 @@ public class AutoRedLeft extends LinearOpMode {
         servoRelease.setPosition(MIN_POS_RELEASE);
 
         ///////// AUTO COMMANDS \\\\\\\\\\
-        encoderDrive(8, 8, .4);
-        encoderStrafe(3, .3);
-        encoderDrive(18, 18, .3);     // Drive and push over game piece if in the way
-        spinMotor.setPower(-.4);                        // Spit out pixel
-        sleep(400);
-        spinMotor.setPower(0);
+        encoderDrive(8, 8, .3);
+        encoderStrafe(3, .2);
+        encoderDrive(20, 20, .3);     // Drive and push over game piece if in the way
+        encoderDrive(-1, -1, .3);
+        spinMotor.setPower(-.3);                        // Spit out pixel
         encoderDrive(-12, -12, .3);   // Backup to make sure it's out
+        spinMotor.setPower(0);
 
         encoderStrafe(-20, .3);            // Get to middle of field
-        encoderDrive(28, 28, .2);
+        encoderDrive(33, 33, .3);
         encoderTurn(-90, .2);
 
-        encoderDrive(-104, -104, .4);          // Strafe across the field
-        encoderStrafe(-24, .3);  // Align with the board
+        encoderDrive(-102, -102, .4);          // go across the field
+        encoderStrafe(-26, .3);  // Align with the board
+        encoderDrive(-6, -6, .2);   // Back up a tiny bit
 
         placePixel(1100, .7);           // Score! (hopefully)
 
-        encoderStrafe(24, .3);          // Park and finish
+        encoderStrafe(22, .4);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
@@ -113,16 +114,17 @@ public class AutoRedLeft extends LinearOpMode {
         extendMotor.setTargetPosition(-height); // slide moves in negative direction
         extendMotor.setPower(slideSpeed);
         extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        sleep(1300);
+        sleep(1000);
         // Release pixel
         servoTilt.setPosition(MAX_POS_TILT);
         sleep(500);
         servoRelease.setPosition(MAX_POS_RELEASE);
         sleep(500);
         // Reset
-        extendMotor.setTargetPosition(0);
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(300);
+        extendMotor.setTargetPosition(0);
         sleep(1000);
         extendMotor.setPower(0);        // (Turn off slide)
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -158,7 +160,7 @@ public class AutoRedLeft extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -185,7 +187,7 @@ public class AutoRedLeft extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -211,7 +213,7 @@ public class AutoRedLeft extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 

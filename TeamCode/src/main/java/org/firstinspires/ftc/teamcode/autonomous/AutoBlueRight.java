@@ -77,23 +77,25 @@ public class AutoBlueRight extends LinearOpMode {
 
 
         ///////// AUTO COMMANDS \\\\\\\\\\
-        encoderDrive(30, 30, .3);     // Drive and push over game piece if in the way
-        encoderDrive(-2, -2, .3);     // Back up a tiny bit
+        encoderDrive(8, 8, .3);
+        encoderStrafe(-3, .2);
+        encoderDrive(20, 20, .3);     // Drive and push over game piece if in the way
+        encoderDrive(-1, -1, .3);
         spinMotor.setPower(-.3);                        // Spit out pixel
-        encoderDrive(-10, -10, .3);   // Backup to make sure it's out
+        encoderDrive(-12, -12, .3);   // Backup to make sure it's out
         spinMotor.setPower(0);
-        sleep(500);
 
-        encoderStrafe(20, .3);            // Get to middle of field
-        encoderDrive(31, 31, .3);
+        encoderStrafe(18, .3);            // Get to middle of field
+        encoderDrive(33, 33, .3);
+        encoderTurn(90, .2);
 
-        encoderStrafe(-106, .4);          // Strafe across the field
-        encoderDrive(-18, -18, .4);  // Align with the board
-        encoderTurn(90, .2);               // Ready to score
+        encoderDrive(-104, -104, .4);          // go across the field
+        encoderStrafe(23, .3);  // Align with the board
+        encoderDrive(-6, -6, .2);   // Back up a tiny bit
 
-        placePixel(1000, .7);           // Score! (hopefully)
+        placePixel(1100, .7);           // Score! (hopefully)
 
-        encoderStrafe(-12, .3);          // Park and finish
+        encoderStrafe(-22, .4);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
@@ -118,9 +120,10 @@ public class AutoBlueRight extends LinearOpMode {
         servoRelease.setPosition(MAX_POS_RELEASE);
         sleep(500);
         // Reset
-        extendMotor.setTargetPosition(0);
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(300);
+        extendMotor.setTargetPosition(0);
         sleep(1000);
         extendMotor.setPower(0);        // (Turn off slide)
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -156,7 +159,7 @@ public class AutoBlueRight extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -183,7 +186,7 @@ public class AutoBlueRight extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -209,7 +212,7 @@ public class AutoBlueRight extends LinearOpMode {
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 500);
+            startWaitFinish(speed, 250);
         }
     }
 
