@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
-@TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
+@TeleOp(name="COMPETITION TELE-OP", group="Linear OpMode")
 //@Disabled
 public class BasicMecanumTeleop extends LinearOpMode {
 
@@ -77,9 +77,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         final double INCREMENT = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int CYCLE_MS = 50;     // period of each cycle
-        final double MAX_POS_TILT = 0.72;     // Maximum rotational position 65
-        final double MIN_POS_TILT = 0.413;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.5;    // Highest position (all pixels released)
+        final double MAX_POS_TILT = 0.85;     // Maximum rotational position 65
+        final double MIN_POS_TILT = 0.47;     // Minimum rotational position
+        final double MAX_POS_RELEASE = 0.53;    // Highest position (all pixels released)
         final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
         final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
 

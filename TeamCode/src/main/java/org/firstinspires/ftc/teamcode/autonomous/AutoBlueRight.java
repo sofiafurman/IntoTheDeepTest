@@ -93,7 +93,7 @@ public class AutoBlueRight extends LinearOpMode {
         encoderStrafe(23, .3);  // Align with the board
         encoderDrive(-6, -6, .2);   // Back up a tiny bit
 
-        placePixel(940, .7);           // Score! (hopefully)
+        placePixel(1100, .7);           // Score! (hopefully)
 
         encoderStrafe(-22, .4);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\

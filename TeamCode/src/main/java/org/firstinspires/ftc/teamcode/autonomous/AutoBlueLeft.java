@@ -92,7 +92,7 @@ public class AutoBlueLeft extends LinearOpMode {
         encoderDrive(8, 8, .3);
         encoderTurn(90, .2);
         encoderDrive(-12, -12, .2);
-        placePixel(940, .7);
+        placePixel(1100, .7);
         encoderStrafe(20, .31);
         /////////// END OF AUTO
 
