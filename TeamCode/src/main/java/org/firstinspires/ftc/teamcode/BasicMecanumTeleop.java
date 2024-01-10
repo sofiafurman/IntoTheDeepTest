@@ -79,7 +79,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         final int CYCLE_MS = 50;     // period of each cycle
         final double MAX_POS_TILT = 0.85;     // Maximum rotational position 65
         final double MIN_POS_TILT = 0.47;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.53;    // Highest position (all pixels released)
+        final double MAX_POS_RELEASE = 0.6;    // Highest position (all pixels released) before: .53
         final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
         final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
 
@@ -105,16 +105,18 @@ public class BasicMecanumTeleop extends LinearOpMode {
         //Spin and spin toggle
         double spinFactor = 0;
 
-        // Level
+        // extend stuff
         int levelZero = -5;
         int levelOne = -1100;
         int levelTwo = -1425;
         int levelThree = -1825;
+        int levelFour = -2000;
         int currentPos = levelZero;
         boolean changed3 = false;
         boolean changed4 = false;
         boolean extendToggle = false;
         boolean changed5 = false;
+        //double extendPower = gamepad2.left_stick_y;
 
 
         // ########################################################################################
@@ -163,21 +165,23 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            /*
+            // january 9
             if (gamepad2.dpad_left && !changed5) {
 
                 extendToggle = !extendToggle;
                 changed5 = true;
                 extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
+                
             } else if (!gamepad2.dpad_left) {
                 changed5 = false;
             }
 
-             */
+            //more extend
+            double extendPower = gamepad2.left_stick_y;
 
             if(!extendToggle) {
+                telemetry.addData("status","analog");
                 if (gamepad2.right_bumper && !changed3) {
                     if (currentPos == levelZero) {
                         currentPos = levelOne;
@@ -188,7 +192,13 @@ public class BasicMecanumTeleop extends LinearOpMode {
                     } else if (currentPos == levelTwo) {
                         currentPos = levelThree;
 
+                    } else if (currentPos == levelThree) {
+                        currentPos = levelFour;
+
                     }
+
+
+
                     extendMotor.setTargetPosition(currentPos);
                     extendMotor.setPower(0.7);
                     changed3 = true;
@@ -199,8 +209,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
 
                 if (gamepad2.left_bumper && !changed4) {
-                    if (currentPos == levelThree) {
-                        currentPos = levelTwo;
+
+                    } if (currentPos == levelFour) {
+                        currentPos = levelThree;
 
                     } else if (currentPos == levelTwo) {
                         currentPos = levelOne;
@@ -219,11 +230,15 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
-            else if(extendToggle) {
+            // january 9
+            if(extendToggle) {
+                telemetry.addData("status","analog");
                 extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                extendMotor.setPower(gamepad2.left_stick_y);
+                /*extendMotor.setPower(extendPower);
+                telemetry.addData("extendy thingygy", extendPower);*/
 
             }
+
 
 
 
@@ -318,11 +333,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
 
 
-
+            /*
             else if (gamepad2.dpad_up) {
                 servoRelease.setPosition(MAX_POS_RELEASE);
             }
-
+            */
 
 
             /*
@@ -382,7 +397,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         telemetry.update();
             }
         }
-    }
+
 
 
 
