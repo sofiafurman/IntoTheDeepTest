@@ -77,9 +77,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         final double INCREMENT = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int CYCLE_MS = 50;     // period of each cycle
-        final double MAX_POS_TILT = 0.85;     // Maximum rotational position 65
-        final double MIN_POS_TILT = 0.47;     // Minimum rotational position
-        final double MAX_POS_RELEASE = 0.6;    // Highest position (all pixels released) before: .53
+        final double MAX_POS_TILT = 0.72;     // Maximum rotational position 65
+        final double MIN_POS_TILT = 0.43;     // Minimum rotational position og .47
+        final double MAX_POS_RELEASE = 0.53;    // Highest position (all pixels released)
         final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
         final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
 
@@ -105,7 +105,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         //Spin and spin toggle
         double spinFactor = 0;
 
-        // extend stuff
+        // Level
         int levelZero = -5;
         int levelOne = -1100;
         int levelTwo = -1425;
@@ -116,7 +116,6 @@ public class BasicMecanumTeleop extends LinearOpMode {
         boolean changed4 = false;
         boolean extendToggle = false;
         boolean changed5 = false;
-        //double extendPower = gamepad2.left_stick_y;
 
 
         // ########################################################################################
@@ -165,23 +164,21 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            // january 9
+            /*
             if (gamepad2.dpad_left && !changed5) {
 
                 extendToggle = !extendToggle;
                 changed5 = true;
                 extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                
+
             } else if (!gamepad2.dpad_left) {
                 changed5 = false;
             }
 
-            //more extend
-            double extendPower = gamepad2.left_stick_y;
+             */
 
             if(!extendToggle) {
-                telemetry.addData("status","analog");
                 if (gamepad2.right_bumper && !changed3) {
                     if (currentPos == levelZero) {
                         currentPos = levelOne;
@@ -192,13 +189,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
                     } else if (currentPos == levelTwo) {
                         currentPos = levelThree;
 
-                    } else if (currentPos == levelThree) {
-                        currentPos = levelFour;
-
                     }
-
-
-
+                    else if (currentPos == levelThree) {
+                        currentPos = levelFour;
+                    }
                     extendMotor.setTargetPosition(currentPos);
                     extendMotor.setPower(0.7);
                     changed3 = true;
@@ -209,9 +203,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
 
                 if (gamepad2.left_bumper && !changed4) {
-
-                    } if (currentPos == levelFour) {
+                    if (currentPos == levelFour){
                         currentPos = levelThree;
+                    }
+                    else if (currentPos == levelThree) {
+                        currentPos = levelTwo;
 
                     } else if (currentPos == levelTwo) {
                         currentPos = levelOne;
@@ -230,15 +226,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
-            // january 9
-            if(extendToggle) {
-                telemetry.addData("status","analog");
+            else if(extendToggle) {
                 extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                /*extendMotor.setPower(extendPower);
-                telemetry.addData("extendy thingygy", extendPower);*/
+                extendMotor.setPower(gamepad2.left_stick_y);
 
             }
-
 
 
 
@@ -333,11 +325,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
 
 
-            /*
+
             else if (gamepad2.dpad_up) {
                 servoRelease.setPosition(MAX_POS_RELEASE);
             }
-            */
+
 
 
             /*
@@ -353,8 +345,8 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
 
 
-        // This servo code times the movement of the servos such
-        // that one will finish before the other one (tilt then release)
+            // This servo code times the movement of the servos such
+            // that one will finish before the other one (tilt then release)
             /*if (!gamepad2.right_bumper) {
                 mode = 1;
                 time = timeSet;
@@ -375,30 +367,26 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 }
             }*/
 
-        //idle();
+            //idle();
 
-        // Send calculated power to wheels
-        leftFrontDrive.setPower(leftFrontPower * speed);
-        rightFrontDrive.setPower(rightFrontPower * speed);
-        leftBackDrive.setPower(leftBackPower * speed);
-        rightBackDrive.setPower(rightBackPower * speed);
-        spinMotor.setPower(spinFactor);
-        extendMotor.setPower(0.7);
+            // Send calculated power to wheels
+            leftFrontDrive.setPower(leftFrontPower * speed);
+            rightFrontDrive.setPower(rightFrontPower * speed);
+            leftBackDrive.setPower(leftBackPower * speed);
+            rightBackDrive.setPower(rightBackPower * speed);
+            spinMotor.setPower(spinFactor);
+            extendMotor.setPower(0.7);
 
-        // Show the elapsed game time and wheel power.
-        telemetry.addData("This is the toggle value", Toggle);
-        telemetry.addData("This is the speed multiplier", speed);
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-        telemetry.addData("Tilt Servo Position", "%5.2f", tiltServoPos);
-        telemetry.addData("Currently at", "%7d", extendMotor.getCurrentPosition() * -1);
-        telemetry.addData("Target pos", "%7d", currentPos);
-        telemetry.update();
-            }
+            // Show the elapsed game time and wheel power.
+            telemetry.addData("This is the toggle value", Toggle);
+            telemetry.addData("This is the speed multiplier", speed);
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Tilt Servo Position", "%5.2f", tiltServoPos);
+            telemetry.addData("Currently at", "%7d", extendMotor.getCurrentPosition() * -1);
+            telemetry.addData("Target pos", "%7d", currentPos);
+            telemetry.update();
         }
-
-
-
-
-
+    }
+}
