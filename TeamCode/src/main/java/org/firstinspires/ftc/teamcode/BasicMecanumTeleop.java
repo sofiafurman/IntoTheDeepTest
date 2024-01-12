@@ -164,21 +164,28 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            /*
+
             if (gamepad2.dpad_left && !changed5) {
 
                 extendToggle = !extendToggle;
+                telemetry.addData("status", "switched!");
                 changed5 = true;
+            /*
                 extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            } else if (!gamepad2.dpad_left) {
-                changed5 = false;
-            }
-
              */
 
+            } else if (!gamepad2.dpad_left) {
+                changed5 = false;
+
+            }
+
+
+            //float extendPower = gamepad2.left_stick_y;
+
             if(!extendToggle) {
+                telemetry.addData("status", "button not pressed");
                 if (gamepad2.right_bumper && !changed3) {
                     if (currentPos == levelZero) {
                         currentPos = levelOne;
@@ -226,9 +233,23 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
 
+
             else if(extendToggle) {
-                extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                extendMotor.setPower(gamepad2.left_stick_y);
+                telemetry.addData("status", "joystick");
+                //extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                //extendMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                //extendMotor.setPower(0);
+                float extendPower = gamepad2.left_stick_y;
+
+
+                extendMotor.setPower(extendPower * -1 * speed);
+                //telemetry.addData("varible", "%7d", extendPower);
+                telemetry.addData("stick",  gamepad2.left_stick_y);
+                telemetry.addData("stick",  extendPower);//"%4.2f",
+
+                //telemetry.addData("AAAAAAAA", "%7d", extendMotor.getCurrentPosition() * -1);
+
 
             }
 
@@ -242,6 +263,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             double axial = -gamepad1.left_stick_y * Toggle;  // Note: pushing stick forward gives negative value
             double lateral = gamepad1.left_stick_x * Toggle;
             double yaw = gamepad1.right_stick_x;
+
 
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
