@@ -106,11 +106,11 @@ public class BasicMecanumTeleop extends LinearOpMode {
         double spinFactor = 0;
 
         // Level
-        int levelZero = -5;
+        int levelZero = -50; //originally encoder level set to -5 but was trying to go into itself????
         int levelOne = -1100;
         int levelTwo = -1425;
         int levelThree = -1825;
-        int levelFour = -2000;
+        int levelFour = -2400; //og -2000
         int currentPos = levelZero;
         boolean changed3 = false;
         boolean changed4 = false;
@@ -187,7 +187,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             if(!extendToggle) {
                 telemetry.addData("status", "button not pressed");
                 if (gamepad2.right_bumper && !changed3) {
-                    if (currentPos == levelZero) {
+                    if ((currentPos == levelZero )) {
                         currentPos = levelOne;
 
                     } else if (currentPos == levelOne) {
@@ -221,32 +221,41 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
                     } else if (currentPos == levelOne) {
                         currentPos = levelZero;
+                        extendMotor.setTargetPosition(currentPos);
+                        sleep(1000);
+                        //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        //currentPos = 0;
+
+
 
                     }
                     extendMotor.setTargetPosition(currentPos);
+
+
                     extendMotor.setPower(0.7);
                     changed4 = true;
 
                 } else if (!gamepad2.left_bumper) {
                     changed4 = false;
                 }
-                extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);//og the only place where run to pos is found
             }
 
 
             else if(extendToggle) {
                 telemetry.addData("status", "joystick");
                 //extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 //extendMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 //extendMotor.setPower(0);
-                float extendPower = gamepad2.left_stick_y;
+                float stickInput = gamepad2.left_stick_y;
+                double extendPower = stickInput;
 
+                extendMotor.setPower(extendPower);
 
-                extendMotor.setPower(extendPower * -1 * speed);
                 //telemetry.addData("varible", "%7d", extendPower);
                 telemetry.addData("stick",  gamepad2.left_stick_y);
-                telemetry.addData("stick",  extendPower);//"%4.2f",
+                telemetry.addData("power val",  extendMotor.getPower());//"%4.2f",
 
                 //telemetry.addData("AAAAAAAA", "%7d", extendMotor.getCurrentPosition() * -1);
 
@@ -310,17 +319,28 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //spinny code (intake motor)
-            if (gamepad2.a) {
+            if (gamepad2.a || gamepad1.right_bumper) {
                 spinFactor = 0.87;
-                servoRelease.setPosition(MAX_POS_RELEASE );
-            } else if (gamepad2.b) {
+                servoRelease.setPosition(MAX_POS_RELEASE);
+            } else if (gamepad2.b ||  gamepad1.left_bumper) {
                 spinFactor = -0.87;
             } else {
                 spinFactor = 0;
             }
 
+            /*
+            if (gamepad1.right_bumper) {
+                spinFactor = 0.87;
+                servoRelease.setPosition(MAX_POS_RELEASE);
+            } else if (gamepad1.left_bumper) {
+                spinFactor = -0.87;
+            } else {
+                spinFactor = 0;
+            }
+            */
+
             //reset servo pos to zero when no intake
-            if (!gamepad2.a && currentPos == levelZero){
+            if (!gamepad2.a && ((currentPos == levelZero))){
                 servoRelease.setPosition(MIN_POS_RELEASE);
             }
 
@@ -329,7 +349,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             if (gamepad2.y && !gamepad2.dpad_down && (currentPos != levelZero) ) {
 
                 servoTilt.setPosition(MAX_POS_TILT);
-            } else if (gamepad2.x && (currentPos != levelZero) ) {
+            } else if (gamepad2.x && (currentPos != levelZero)  ) {
                 servoTilt.setPosition(MIN_POS_TILT);
             }
 
@@ -338,10 +358,16 @@ public class BasicMecanumTeleop extends LinearOpMode {
             if (gamepad2.dpad_down) {
                 servoTilt.setPosition(MIN_POS_TILT);
                 servoRelease.setPosition(MIN_POS_RELEASE);
-                extendMotor.setTargetPosition(-5);
+                //extendMotor.setTargetPosition(-5);
                 currentPos = levelZero;
-                extendMotor.setPower(0.7);
-            } else if (gamepad2.dpad_right && (currentPos != levelZero) ) {
+                extendMotor.setTargetPosition(currentPos);
+                sleep(1000);
+                //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                //currentPos = 0;
+                //extendMotor.setTargetPosition(currentPos);
+
+                extendMotor.setPower(0.6); //og 0.7 but lower for voltage
+            } else if (gamepad2.dpad_right  && ((currentPos != levelZero)))  { //&& ((currentPos != 0)  ) og
                 servoRelease.setPosition(MID_POS_RELEASE);
             }
 
