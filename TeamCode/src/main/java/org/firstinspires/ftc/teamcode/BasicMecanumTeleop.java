@@ -106,7 +106,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         double spinFactor = 0;
 
         // Level
-        int levelZero = -50; //originally encoder level set to -5 but was trying to go into itself????
+        int levelZero = 0; //originally encoder level set to -5 but was trying to go into itself????
         int levelOne = -1100;
         int levelTwo = -1425;
         int levelThree = -1825;
@@ -116,6 +116,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         boolean changed4 = false;
         boolean extendToggle = false;
         boolean changed5 = false;
+
 
 
         // ########################################################################################
@@ -164,22 +165,26 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-
+            if (gamepad2.dpad_left){
+                extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+            /*
             if (gamepad2.dpad_left && !changed5) {
 
                 extendToggle = !extendToggle;
                 telemetry.addData("status", "switched!");
                 changed5 = true;
-            /*
-                extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-             */
+               // extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
 
             } else if (!gamepad2.dpad_left) {
                 changed5 = false;
 
             }
+            */
 
 
             //float extendPower = gamepad2.left_stick_y;
@@ -222,7 +227,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
                     } else if (currentPos == levelOne) {
                         currentPos = levelZero;
                         extendMotor.setTargetPosition(currentPos);
-                        sleep(1000);
+                        //sleep(1000);
                         //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         //currentPos = 0;
 
@@ -244,10 +249,9 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
             else if(extendToggle) {
                 telemetry.addData("status", "joystick");
-                //extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                //extendMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                //extendMotor.setPower(0);
+
+                //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                extendMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 float stickInput = gamepad2.left_stick_y;
                 double extendPower = stickInput;
 
@@ -256,12 +260,12 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 //telemetry.addData("varible", "%7d", extendPower);
                 telemetry.addData("stick",  gamepad2.left_stick_y);
                 telemetry.addData("power val",  extendMotor.getPower());//"%4.2f",
+                telemetry.addData("encoder/not", extendMotor.getMode());
 
                 //telemetry.addData("AAAAAAAA", "%7d", extendMotor.getCurrentPosition() * -1);
 
 
             }
-
 
 
 
@@ -423,7 +427,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
             spinMotor.setPower(spinFactor);
-            extendMotor.setPower(0.7);
+            //extendMotor.setPower(0.7);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("This is the toggle value", Toggle);
