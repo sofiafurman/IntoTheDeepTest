@@ -33,6 +33,8 @@ public class AutoBlueLeft extends LinearOpMode {
     final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
     final double MIN_POS_RELEASE = 0.31;   // Lowest position (default)
 
+    private int camera_val = 1;/////////////////////////////////////////////////////////////
+
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -59,6 +61,7 @@ public class AutoBlueLeft extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         resetEncoders();
+        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -79,20 +82,39 @@ public class AutoBlueLeft extends LinearOpMode {
 
 
         ////////// AUTO COMMANDS:
-        // Drop pixel
-        encoderDrive(8, 8, .3);
-        encoderStrafe(3, .3);
-        encoderDrive(20, 20, .3);
-        spinMotor.setPower(-.3);
-        encoderDrive(-10, -10, .3);
-        spinMotor.setPower(0);
-
-        // Get in front of board
-        encoderStrafe(-30, .3);
-        encoderDrive(8, 8, .3);
-        encoderTurn(90, .2);
+        if (camera_val == 1) {
+            // Drop pixel on left line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(-5, .2);
+            encoderDrive(12.5, 12.5, .3);
+            encoderDrive(-1, -1, .2);
+            dropPixel(3);
+            encoderStrafe(-20, .2);
+            encoderTurn(90, .2);
+        } else if (camera_val == 2) {
+            // Middle line auto
+            encoderDrive(8, 8, .3);
+            encoderStrafe(3, .3);
+            encoderDrive(20, 20, .3);
+            spinMotor.setPower(-.3);
+            encoderDrive(-10, -10, .3);
+            spinMotor.setPower(0);
+            // Get in front of board
+            encoderStrafe(-30, .3);
+            encoderDrive(8, 8, .3);
+            encoderTurn(90, .2);
+        } else {
+            // Drop pixel on right line
+            encoderDrive(18, 18, .3);
+            encoderTurn(60, .2);
+            encoderDrive(9, 9, .3);
+            dropPixel(29);
+            encoderStrafe(-20, .2);
+            encoderTurn(30, .2);
+        }
+        // Score on board
         encoderDrive(-12, -12, .2);
-        placePixel(1100, .7);
+        placePixel((int)(900*1.4), 1);
         encoderStrafe(20, .31);
         /////////// END OF AUTO
 
@@ -104,22 +126,30 @@ public class AutoBlueLeft extends LinearOpMode {
 
         sleep(5000); // Give 5 sec to view message before finishing
     }
+
+    private void dropPixel(double backUp) {
+        spinMotor.setPower(-.3);                        // Spit out pixel
+        encoderDrive(-backUp, -backUp, .3);   // Backup to make sure it's out
+        spinMotor.setPower(0);
+    }
+
     private void placePixel(int height, double slideSpeed) {
         // This function extends the slides and drops a pixel onto the board
         // First, move slide to a desired height
         extendMotor.setTargetPosition(-height); // slide moves in negative direction
         extendMotor.setPower(slideSpeed);
         extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        sleep(1300);
+        sleep(1000);
         // Release pixel
         servoTilt.setPosition(MAX_POS_TILT);
-        sleep(500);
+        sleep(400);
         servoRelease.setPosition(MAX_POS_RELEASE);
-        sleep(500);
+        sleep(400);
+        encoderDrive(2, 2, .2);     // Back away from the board
         // Reset
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
-        sleep(300);
+        sleep(200);
         extendMotor.setTargetPosition(0);
         sleep(1000);
         extendMotor.setPower(0);        // (Turn off slide)
@@ -132,7 +162,6 @@ public class AutoBlueLeft extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void encoderDrive(double leftIn, double rightIn, double speed) {

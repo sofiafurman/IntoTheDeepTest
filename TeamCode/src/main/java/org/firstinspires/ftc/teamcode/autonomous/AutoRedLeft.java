@@ -33,14 +33,14 @@ public class AutoRedLeft extends LinearOpMode {
     final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
     final double MIN_POS_RELEASE = 0.31;   // Lowest position (default)
 
+    private int camera_val = 3;/////////////////////////////////////////////////////////////
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
-        // As of 10.31.23 the following order matches the order
-        // the motors are plugged into the ports (0-3)
+        // Set up the drive motors
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
@@ -59,6 +59,7 @@ public class AutoRedLeft extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         resetEncoders();
+        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -77,26 +78,45 @@ public class AutoRedLeft extends LinearOpMode {
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
 
+
         ///////// AUTO COMMANDS \\\\\\\\\\
-        encoderDrive(8, 8, .3);
-        encoderStrafe(3, .2);
-        encoderDrive(20, 20, .3);     // Drive and push over game piece if in the way
-        encoderDrive(-1, -1, .3);
-        spinMotor.setPower(-.3);                        // Spit out pixel
-        encoderDrive(-12, -12, .3);   // Backup to make sure it's out
-        spinMotor.setPower(0);
+        if (camera_val == 1) {
+            // Drop pixel on left line
+            encoderDrive(16, 16, .3);
+            encoderTurn(-60, .2);
+            encoderDrive(9, 9, .3);
+            dropPixel(29);
+            encoderTurn(60, .2);
+            encoderDrive(42, 42, .3);
+        } else if (camera_val == 2) {
+            // Drop pixel on middle line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(-3, .2);
+            encoderDrive(19, 19, .3);     // Drive and push over game piece if in the way
+            encoderDrive(-1, -1, .3);
+            dropPixel(11);
+            encoderStrafe(19, .3);            // Get to middle of field
+            encoderDrive(33, 33, .3);
+        } else {
+            // Drop pixel on right line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(5, .2);
+            encoderDrive(12.5, 12.5, .3);
+            encoderDrive(-1, -1, .2);
+            dropPixel(5.5);
+            encoderStrafe(13, .2);
+            encoderDrive(35, 35, .3);
+            encoderStrafe(-1, .2);
+        }
+        encoderTurn(90, .2);
+        encoderDrive(-103, -103, .5);          // go across the field
+        encoderStrafe(21, .3);  // Align with the board
+        encoderDrive(-6, -6, .25);   // Back up a tiny bit
+        encoderDrive(1, 1, .25);     // Don't touch the board
 
-        encoderStrafe(-20, .3);            // Get to middle of field
-        encoderDrive(33, 33, .3);
-        encoderTurn(-90, .2);
+        placePixel((int)(900*1.4), 1);           // Score! (hopefully)
 
-        encoderDrive(-102, -102, .4);          // go across the field
-        encoderStrafe(-26, .3);  // Align with the board
-        encoderDrive(-6, -6, .2);   // Back up a tiny bit
-
-        placePixel(1100, .7);           // Score! (hopefully)
-
-        encoderStrafe(22, .4);          // Park and finish
+        encoderStrafe(-22, .5);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
@@ -108,6 +128,12 @@ public class AutoRedLeft extends LinearOpMode {
         sleep(5000); // Give 5 sec to view message before finishing
     }
 
+    private void dropPixel(double backUp) {
+        spinMotor.setPower(-.3);                        // Spit out pixel
+        encoderDrive(-backUp, -backUp, .3);   // Backup to make sure it's out
+        spinMotor.setPower(0);
+    }
+
     private void placePixel(int height, double slideSpeed) {
         // This function extends the slides and drops a pixel onto the board
         // First, move slide to a desired height
@@ -117,13 +143,14 @@ public class AutoRedLeft extends LinearOpMode {
         sleep(1000);
         // Release pixel
         servoTilt.setPosition(MAX_POS_TILT);
-        sleep(500);
+        sleep(400);
         servoRelease.setPosition(MAX_POS_RELEASE);
-        sleep(500);
+        sleep(400);
+        encoderDrive(2, 2, .2);     // Back away from the board
         // Reset
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
-        sleep(300);
+        sleep(200);
         extendMotor.setTargetPosition(0);
         sleep(1000);
         extendMotor.setPower(0);        // (Turn off slide)
@@ -136,7 +163,6 @@ public class AutoRedLeft extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void encoderDrive(double leftIn, double rightIn, double speed) {
@@ -175,15 +201,15 @@ public class AutoRedLeft extends LinearOpMode {
         if (opModeIsActive()) {
             // Set targets using conversion factor to turn inches into encoder counts
             resetEncoders();
-            double newTarget = (targetIn * STRAFE_COUNTS_PER_INCH);
+            int newTarget = (int)(targetIn * STRAFE_COUNTS_PER_INCH);
 
-            rightFrontTarget = -(int)newTarget;
+            rightFrontTarget = -newTarget;
             rightFrontDrive.setTargetPosition(rightFrontTarget);
-            leftBackTarget = -(int)newTarget;
+            leftBackTarget = -newTarget;
             leftBackDrive.setTargetPosition(leftBackTarget);
-            rightBackTarget = (int)newTarget;
+            rightBackTarget = newTarget;
             rightBackDrive.setTargetPosition(rightBackTarget);
-            leftFrontTarget = (int)newTarget;
+            leftFrontTarget = newTarget;
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
