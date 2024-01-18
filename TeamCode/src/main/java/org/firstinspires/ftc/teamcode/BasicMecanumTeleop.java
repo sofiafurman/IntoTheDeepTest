@@ -107,10 +107,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         // Level
         int levelZero = 0; //originally encoder level set to -5 but was trying to go into itself????
-        int levelOne = -1100;
-        int levelTwo = -1425;
-        int levelThree = -1825;
-        int levelFour = -2400; //og -2000
+        int levelOne = -1540; //og -1100
+        int levelTwo = -1995; //og -1425
+        int levelThree = -2555; //og -1825
+        int levelFour = -3360; //og -2400
         int currentPos = levelZero;
         boolean changed3 = false;
         boolean changed4 = false;
@@ -165,7 +165,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            if (gamepad2.dpad_left){
+            if (gamepad2.dpad_left){ // && currentPos == levelZero
                 extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
             /*
