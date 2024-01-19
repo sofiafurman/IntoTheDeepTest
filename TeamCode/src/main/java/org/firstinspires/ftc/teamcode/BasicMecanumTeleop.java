@@ -206,7 +206,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
                         currentPos = levelFour;
                     }
                     extendMotor.setTargetPosition(currentPos);
-                    extendMotor.setPower(0.7);
+                    extendMotor.setPower(1);
                     changed3 = true;
 
                 } else if (!gamepad2.right_bumper) {
@@ -237,7 +237,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
                     extendMotor.setTargetPosition(currentPos);
 
 
-                    extendMotor.setPower(0.7);
+                    extendMotor.setPower(1);
                     changed4 = true;
 
                 } else if (!gamepad2.left_bumper) {
@@ -370,7 +370,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
                 //currentPos = 0;
                 //extendMotor.setTargetPosition(currentPos);
 
-                extendMotor.setPower(0.6); //og 0.7 but lower for voltage
+                extendMotor.setPower(1); //og 0.7 but lower for voltage
             } else if (gamepad2.dpad_right  && ((currentPos != levelZero)))  { //&& ((currentPos != 0)  ) og
                 servoRelease.setPosition(MID_POS_RELEASE);
             }
@@ -427,7 +427,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
             spinMotor.setPower(spinFactor);
-            //extendMotor.setPower(0.7);
+
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("This is the toggle value", Toggle);
