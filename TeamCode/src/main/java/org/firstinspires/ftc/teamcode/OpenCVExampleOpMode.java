@@ -72,23 +72,33 @@ class Pipeline extends OpenCvPipeline {
     Rect mrect = new Rect(800, 600, 500, 360);
     Rect rrect = new Rect(1500, 620, 420, 460);
     boolean debugview = true;
+    boolean doBlue = false;
     int returnlocation;
     /*
      * This function takes the RGB frame, converts to HSV,
      * and extracts the red color to the '' variable
      */
-    void inputToRedBinary(Mat input) {
-        Imgproc.cvtColor(input, HSV, Imgproc.COLOR_RGB2HSV);
-        // get red pixels (hue > 0)
-        lowerBound = new Scalar(0, 200, 30);
-        upperBound = new Scalar(5, 255, 255);
-        Core.inRange(HSV, lowerBound, upperBound, hsv1);
-        // get red pixels (hue < 180)
-        lowerBound = new Scalar(170, 200, 30);
-        upperBound = new Scalar(180, 255, 255);
-        Core.inRange(HSV, lowerBound, upperBound, hsv2);
+    void extractColor(Mat input) {
+        Imgproc.cvtColor(input, HSV, Imgproc.COLOR_RGB2HSV);  // convert the RGB to HSV
+        if (!doBlue){
+            // get red pixels (hue > 0)
+            lowerBound = new Scalar(0, 200, 30);
+            upperBound = new Scalar(5, 255, 255);
+            Core.inRange(HSV, lowerBound, upperBound, hsv1);
+            // get red pixels (hue < 180)
+            lowerBound = new Scalar(170, 200, 30);
+            upperBound = new Scalar(180, 255, 255);
+            Core.inRange(HSV, lowerBound, upperBound, hsv2);
 
-        Core.add(hsv1, hsv2, HSV);
+            Core.add(hsv1, hsv2, HSV);
+        }                                     // get red pixels
+        else {
+            // get blue pixels
+            lowerBound = new Scalar(100, 150, 0);
+            upperBound = new Scalar(140, 255, 255);
+            Core.inRange(HSV, lowerBound, upperBound, hsv1);
+            Core.add(hsv1, hsv1, HSV);
+        }                                            // get blue pixels
     }
     void drawRects(Mat input) {
         Point ptl = new Point(290, 300);
@@ -102,22 +112,22 @@ class Pipeline extends OpenCvPipeline {
         Imgproc.rectangle(HSV, mrect, col, 5);
         Imgproc.rectangle(HSV, rrect, col, 5);
         if (avgl > avgm && avgl > avgr) {
-            Imgproc.rectangle(HSV, lrect, col, 10);
+            Imgproc.rectangle(HSV, lrect, col, 40);
         } else if (avgm > avgr) {
-            Imgproc.rectangle(HSV, mrect, col, 10);
+            Imgproc.rectangle(HSV, mrect, col, 40);
         } else {
-            Imgproc.rectangle(HSV, rrect, col, 10);
+            Imgproc.rectangle(HSV, rrect, col, 40);
         }
     }
 
     @Override
     public void init(Mat firstFrame) {
-        inputToRedBinary(firstFrame);
+        extractColor(firstFrame);
     }
 
     @Override
     public Mat processFrame(Mat input) {
-        inputToRedBinary(input);
+        extractColor(input);
         RectL = HSV.submat(lrect);
         RectM = HSV.submat(mrect);
         RectR = HSV.submat(rrect);
@@ -128,19 +138,21 @@ class Pipeline extends OpenCvPipeline {
         if(debugview) {
             drawRects(HSV);
         }
-        if (avgl > avgm && avgl > avgr) {
+        if (avgl >= (avgm + 3) && avgl >= (avgr + 3)) {
             returnlocation = 1;
-        } else if (avgm > avgr) {
+        } else if (avgm >= (avgl + 3) && avgm >= (avgr + 3)) {
             returnlocation = 2;
-        } else {
+        } else if (avgr >= (avgl + 3) && avgr >= (avgm + 3)){
             returnlocation = 3;
+        }else{
+            returnlocation = 4;
         }
 
         hsv1.release();   // don't leak memory
-        hsv2.release();   //  do not leak memory
-        RectL.release();  //  |
-        RectM.release();  //  |
-        RectR.release();  //  V
+        hsv2.release();   //        |
+        RectL.release();  //        |
+        RectM.release();  //        |
+        RectR.release();  //________V__________
         if (debugview)
             return HSV;
         else {
