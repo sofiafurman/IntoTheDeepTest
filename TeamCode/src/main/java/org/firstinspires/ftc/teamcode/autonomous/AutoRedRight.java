@@ -82,40 +82,40 @@ public class AutoRedRight extends LinearOpMode {
 
 
         ////////// AUTO COMMANDS:
-        if (camera_val == 1) {
+        if (camera_val == 3) {
             // Drop pixel on left line
             encoderDrive(8, 8, .3);
-            encoderStrafe(-5, .2);
+            encoderStrafe(5, .2);
             encoderDrive(12.5, 12.5, .3);
             encoderDrive(-1, -1, .2);
             dropPixel(3);
-            encoderStrafe(-20, .2);
-            encoderTurn(90, .2);
+            encoderStrafe(20, .2);
+            encoderTurn(-90, .2);
         } else if (camera_val == 2) {
             // Middle line auto
             encoderDrive(8, 8, .3);
-            encoderStrafe(3, .3);
+            encoderStrafe(-3, .3);
             encoderDrive(20, 20, .3);
             spinMotor.setPower(-.3);
             encoderDrive(-10, -10, .3);
             spinMotor.setPower(0);
             // Get in front of board
-            encoderStrafe(-30, .3);
+            encoderStrafe(30, .3);
             encoderDrive(8, 8, .3);
-            encoderTurn(90, .2);
+            encoderTurn(-90, .2);
         } else {
             // Drop pixel on right line
             encoderDrive(18, 18, .3);
-            encoderTurn(60, .2);
+            encoderTurn(-60, .2);
             encoderDrive(9, 9, .3);
             dropPixel(29);
-            encoderStrafe(-20, .2);
-            encoderTurn(30, .2);
+            encoderStrafe(20, .2);
+            encoderTurn(-30, .2);
         }
         // Score on board
         encoderDrive(-12, -12, .2);
         placePixel((int)(900*1.4), 1);
-        encoderStrafe(20, .31);
+        encoderStrafe(-20, .31);
         /////////// END OF AUTO
 
 
