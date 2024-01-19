@@ -77,7 +77,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
         final double INCREMENT = 0.001;     // amount to slew servo each CYCLE_MS cycle
         final int CYCLE_MS = 50;     // period of each cycle
-        final double MAX_POS_TILT = 0.72;     // Maximum rotational position 65
+        final double MAX_POS_TILT = 0.66;     // Maximum rotational position 65
         final double MIN_POS_TILT = 0.43;     // Minimum rotational position og .47
         final double MAX_POS_RELEASE = 0.53;    // Highest position (all pixels released)
         final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
