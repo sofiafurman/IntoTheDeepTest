@@ -80,43 +80,43 @@ public class AutoRedLeft extends LinearOpMode {
 
 
         ///////// AUTO COMMANDS \\\\\\\\\\
-        if (camera_val == 1) {
+        if (camera_val == 3) {
             // Drop pixel on left line
             encoderDrive(16, 16, .3);
-            encoderTurn(-60, .2);
+            encoderTurn(60, .2);
             encoderDrive(9, 9, .3);
             dropPixel(29);
-            encoderTurn(60, .2);
+            encoderTurn(-60, .2);
             encoderDrive(42, 42, .3);
         } else if (camera_val == 2) {
             // Drop pixel on middle line
             encoderDrive(8, 8, .3);
-            encoderStrafe(-3, .2);
+            encoderStrafe(3, .2);
             encoderDrive(19, 19, .3);     // Drive and push over game piece if in the way
             encoderDrive(-1, -1, .3);
             dropPixel(11);
-            encoderStrafe(19, .3);            // Get to middle of field
+            encoderStrafe(-19, .3);            // Get to middle of field
             encoderDrive(33, 33, .3);
         } else {
             // Drop pixel on right line
             encoderDrive(8, 8, .3);
-            encoderStrafe(5, .2);
+            encoderStrafe(-5, .2);
             encoderDrive(12.5, 12.5, .3);
             encoderDrive(-1, -1, .2);
             dropPixel(5.5);
-            encoderStrafe(13, .2);
+            encoderStrafe(-13, .2);
             encoderDrive(35, 35, .3);
-            encoderStrafe(-1, .2);
+            encoderStrafe(1, .2);
         }
-        encoderTurn(90, .2);
+        encoderTurn(-90, .2);
         encoderDrive(-103, -103, .5);          // go across the field
-        encoderStrafe(21, .3);  // Align with the board
+        encoderStrafe(-21, .3);  // Align with the board
         encoderDrive(-6, -6, .25);   // Back up a tiny bit
         encoderDrive(1, 1, .25);     // Don't touch the board
 
         placePixel((int)(900*1.4), 1);           // Score! (hopefully)
 
-        encoderStrafe(-22, .5);          // Park and finish
+        encoderStrafe(22, .5);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
