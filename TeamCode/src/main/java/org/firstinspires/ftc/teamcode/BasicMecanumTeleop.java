@@ -325,7 +325,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             //spinny code (intake motor)
             if (gamepad2.a || gamepad1.right_bumper) {
                 spinFactor = 0.87;
-                servoRelease.setPosition(MAX_POS_RELEASE);
+                servoRelease.setPosition(0.62);
             } else if (gamepad2.b ||  gamepad1.left_bumper) {
                 spinFactor = -0.87;
             } else {
