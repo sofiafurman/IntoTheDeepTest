@@ -86,7 +86,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Give phone an update
-        telemetry.addData("Status", "Going to crap");
+        telemetry.addData("Status", "Going to crab");
         telemetry.update();
 
         waitForStart(); // Waiting for start button
@@ -97,6 +97,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
         int analysis = pipeline.getAnalysis();
         boolean keepLooping = true;
         double t0 = getRuntime();
+        double t1 = getRuntime() - t0;
         while(keepLooping) {
             if (analysis == 1) {
                 encoderStrafe(-24, .4);//left
@@ -111,17 +112,18 @@ public class CheezitEncoderAuto extends LinearOpMode {
                 keepLooping = false;
             }else
                 analysis = pipeline.getAnalysis();
-
+            t1 = getRuntime() - t0;
+            if (t1 > 3){
+                keepLooping = false;
+                encoderDrive(3, 3, .4);//forward
+            }
         }
-        double t1 = getRuntime() - t0;
 
-        telemetry.addData("____ELAPSED TIME____", (t1*1000) + "seconds");
-        telemetry.update();
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
         telemetry.addData("Duration", runtime.toString());
-        telemetry.addData("ELAPSED TIME FOR VISION", (t1/1000) + "seconds");
+        telemetry.addData("ELAPSED TIME FOR VISION", t1 + "seconds");
         telemetry.update();
 
         sleep(5000); // Give 5 sec to view message before finishing
