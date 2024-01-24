@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.cheezitbot;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -19,26 +19,40 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="Robot: Auto Drive By Encoder (Cheezitbot)", group="Robot")
-@Disabled
-public class CheezitEncoderAuto extends LinearOpMode {
+@Autonomous(name="Robot: Kiss Creek's Red Booty", group="Robot")
+//@Disabled
+public class KissCreekBootyRed extends LinearOpMode {
     // camera and opencv stuff
     static final int STREAM_WIDTH = 1920; // modify for your camera
     static final int STREAM_HEIGHT = 1080; // modify for your camera
     OpenCvWebcam webcam;
-    APipeline pipeline;
+    ThePipeline6 pipeline;
 
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
-    // and it will convert to the same encoder count. (1120 counts is one rotation for AndyMark motors)
-    static final double WHEEL_DIAMETER_INCHES = 4;
-    static final double COUNTS_PER_INCH = 1120 / WHEEL_DIAMETER_INCHES / 3.1415;
-    static final double STRAFE_COUNTS_PER_INCH = 1120 / 11.981875;
+    // and it will convert to the same encoder count. (~538 counts is one rotation)
+    static final double WHEEL_DIAMETER_INCHES = 3.779528;
+    static final double COUNTS_PER_INCH = 537.6898395722 / WHEEL_DIAMETER_INCHES / 3.1415;
+    static final double STRAFE_COUNTS_PER_INCH = 537 / 10.3775;
+    static final double TURN_COUNTS_PER_DEGREE = 3836.0 / 360;
 
     // Define the motors
     private DcMotor rightFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor leftFrontDrive = null;
     private DcMotor rightBackDrive = null;
+
+    private DcMotor spinMotor = null;
+    private DcMotor extendMotor = null;
+    private Servo servoTilt = null;
+    private Servo servoRelease = null;
+
+    final double MAX_POS_TILT     =  0.73;     // Maximum rotational position
+    final double MIN_POS_TILT     =  0.413;     // Minimum rotational position
+    final double MAX_POS_RELEASE = 0.4;    // Highest position (all pixels released)
+    final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
+    final double MIN_POS_RELEASE = 0.31;   // Lowest position (default)
+
+    private int camera_val = 3;/////////////////////////////////////////////////////////////
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -49,7 +63,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
         WebcamName webcamName = null;
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
-        pipeline = new APipeline();
+        pipeline = new ThePipeline6();
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -66,12 +80,17 @@ public class CheezitEncoderAuto extends LinearOpMode {
             }
         });
 
-        // As of 10.31.23 the following order matches the order
-        // the motors are plugged into the ports (0-3)
+        // Set up the drive motors
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+
+        // Servos, intake, and slide motors
+        spinMotor = hardwareMap.get(DcMotor.class, "spin_motor");
+        extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
+        servoTilt = hardwareMap.get(Servo.class, "servo_motor");
+        servoRelease = hardwareMap.get(Servo.class, "servo_release");
 
         // Set directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -80,54 +99,130 @@ public class CheezitEncoderAuto extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         resetEncoders();
+        extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Give phone an update
-        telemetry.addData("Status", "Going to crab");
+        telemetry.addData("Status", "'Dis piece o' s*** is READY baby.");
         telemetry.update();
 
         waitForStart(); // Waiting for start button
         runtime.reset();
 
-        // AUTO COMMANDS:
-        // get analysis of object location
+        // VISION CODE START
         int analysis = pipeline.getAnalysis();
         boolean keepLooping = true;
         double t0 = getRuntime();
         double t1 = getRuntime() - t0;
         while(keepLooping) {
-            if (analysis == 1) {
-                encoderStrafe(-24, .4);//left
+            telemetry.addData("analysis", "start_"+analysis);
+            telemetry.update();
+            if (analysis == 1) {//left
+                telemetry.addData("location", "left");
+                telemetry.update();
+                camera_val = 1;
                 keepLooping = false;
             }
-            else if (analysis == 2){
-                encoderDrive(24, 24, .4);//forward
+            if (analysis == 2){//forward
+                telemetry.addData("location", "forward");
+                telemetry.update();
+                camera_val = 2;
                 keepLooping = false;
             }
-            else if (analysis == 3){
-                encoderStrafe(24, .4);//right
+            if (analysis == 3){//right
+                telemetry.addData("location", "right");
+                telemetry.update();
+                camera_val = 3;
                 keepLooping = false;
             }else
                 analysis = pipeline.getAnalysis();
             t1 = getRuntime() - t0;
             if (t1 > 3){
+                telemetry.addData("location", "guessed, ran out of time");
+                telemetry.update();
+                camera_val = 2;
                 keepLooping = false;
-                encoderDrive(3, 3, .4);//forward
             }
         }
+        // VISION CODE END
+
+        // Reset servos
+        servoTilt.setPosition(MIN_POS_TILT);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+
+
+        ///////// AUTO COMMANDS \\\\\\\\\\
+        if (camera_val == 3) {
+            // Drop pixel on left line
+            encoderDrive(16, 16, .3);
+            encoderTurn(60, .2);
+            encoderDrive(9, 9, .3);
+            dropPixel(10);
+            encoderTurn(-60, .2);
+            encoderDrive(-18, -18, .3);
+        } else if (camera_val == 2) {
+            // Drop pixel on middle line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(3, .2);
+            encoderDrive(19, 19, .3);     // Drive and push over game piece if in the way
+            encoderDrive(-1, -1, .3);
+            dropPixel(30);
+        } else {
+            // Drop pixel on right line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(-5, .2);
+            encoderDrive(12.5, 12.5, .3);
+            encoderDrive(-1, -1, .2);
+            dropPixel(20);
+        }
+        encoderDrive(3, 3, .2);
+        encoderTurn(-90, .2);
+        encoderDrive(-24*3.7, -24*3.7, .4);
+        placePixel(800, 1);
+
+        //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
         // Let drive know when finished
         telemetry.addData("Status", "'Tis Complete, your Majesty");
         telemetry.addData("Duration", runtime.toString());
-        telemetry.addData("ELAPSED TIME FOR VISION", t1 + "seconds");
         telemetry.update();
 
         sleep(5000); // Give 5 sec to view message before finishing
+    }
+
+    private void dropPixel(double backUp) {
+        spinMotor.setPower(-.3);                        // Spit out pixel
+        encoderDrive(-backUp, -backUp, .3);   // Backup to make sure it's out
+        spinMotor.setPower(0);
+    }
+
+    private void placePixel(int height, double slideSpeed) {
+        // This function extends the slides and drops a pixel onto the board
+        // First, move slide to a desired height
+        extendMotor.setTargetPosition(-height); // slide moves in negative direction
+        extendMotor.setPower(slideSpeed);
+        extendMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(1000);
+        // Release pixel
+        servoTilt.setPosition(MAX_POS_TILT);
+        sleep(400);
+        servoRelease.setPosition(MAX_POS_RELEASE);
+        sleep(400);
+        //encoderDrive(2, 2, .2);     // Don't need in this auto (not really scoring)
+        // Reset
+        servoTilt.setPosition(MIN_POS_TILT);
+        servoRelease.setPosition(MIN_POS_RELEASE);
+        sleep(1000);
+        extendMotor.setTargetPosition(0);
+        sleep(500);
+        extendMotor.setPower(0);        // (Turn off slide)
+        extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     private void resetEncoders() {
@@ -159,7 +254,7 @@ public class CheezitEncoderAuto extends LinearOpMode {
             rightFrontDrive.setTargetPosition(rightFrontTarget);
 
             // Run the robot auto with the new encoder targets
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -174,19 +269,45 @@ public class CheezitEncoderAuto extends LinearOpMode {
         if (opModeIsActive()) {
             // Set targets using conversion factor to turn inches into encoder counts
             resetEncoders();
-            double newTarget = (targetIn * STRAFE_COUNTS_PER_INCH);
+            int newTarget = (int)(targetIn * STRAFE_COUNTS_PER_INCH);
 
-            rightFrontTarget = -(int)newTarget;
+            rightFrontTarget = -newTarget;
             rightFrontDrive.setTargetPosition(rightFrontTarget);
-            leftBackTarget = -(int)newTarget;
+            leftBackTarget = -newTarget;
             leftBackDrive.setTargetPosition(leftBackTarget);
-            rightBackTarget = (int)newTarget;
+            rightBackTarget = newTarget;
             rightBackDrive.setTargetPosition(rightBackTarget);
-            leftFrontTarget = (int)newTarget;
+            leftFrontTarget = newTarget;
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
-            startWaitFinish(speed, 1000);
+            startWaitFinish(speed, 250);
+        }
+    }
+
+    public void encoderTurn(double angle, double speed) {
+        // This function will turn the robot to an exact angle
+        // to the best ability of the GoBilda encoders.
+        int leftBackTarget;
+        int leftFrontTarget;
+        int rightBackTarget;
+        int rightFrontTarget;
+
+        if (opModeIsActive()) {
+            resetEncoders();
+            int newTarget = (int)(angle * TURN_COUNTS_PER_DEGREE);
+
+            rightFrontTarget = -newTarget;
+            rightFrontDrive.setTargetPosition(rightFrontTarget);
+            leftBackTarget = newTarget;
+            leftBackDrive.setTargetPosition(leftBackTarget);
+            rightBackTarget = -newTarget;
+            rightBackDrive.setTargetPosition(rightBackTarget);
+            leftFrontTarget = newTarget;
+            leftFrontDrive.setTargetPosition(leftFrontTarget);
+
+            // Run
+            startWaitFinish(speed, 250);
         }
     }
 
@@ -240,7 +361,8 @@ public class CheezitEncoderAuto extends LinearOpMode {
         sleep(waitMillis); // Wait a second before next move
     }
 }
-class APipeline extends OpenCvPipeline {
+
+class ThePipeline3 extends OpenCvPipeline {
     Mat HSV = new Mat();
     Mat hsv1 = new Mat();
     Mat hsv2 = new Mat();
@@ -255,8 +377,12 @@ class APipeline extends OpenCvPipeline {
     Rect lrect = new Rect(220, 620, 500, 460);
     Rect mrect = new Rect(800, 600, 500, 360);
     Rect rrect = new Rect(1500, 620, 420, 460);
+    Rect lrect2 = new Rect(0, 620, 500, 460);
+    Rect mrect2 = new Rect(550, 600, 500, 360);
+    Rect rrect2 = new Rect(1200, 620, 420, 460);
+    boolean rightsideofbarrier = true;
     boolean debugview = true;
-    boolean doBlue = false;
+    boolean doBlue = true;
     int returnlocation;
     /*
      * This function takes the RGB frame, converts to HSV,
@@ -292,15 +418,28 @@ class APipeline extends OpenCvPipeline {
         Imgproc.putText(HSV, avgl + "", ptl, 1, 10, col, 5);
         Imgproc.putText(HSV, avgm + "", ptm, 1, 10, col, 5);
         Imgproc.putText(HSV, avgr + "", ptr, 1, 10, col, 5);
-        Imgproc.rectangle(HSV, lrect, col, 5);
-        Imgproc.rectangle(HSV, mrect, col, 5);
-        Imgproc.rectangle(HSV, rrect, col, 5);
-        if (avgl > avgm && avgl > avgr) {
-            Imgproc.rectangle(HSV, lrect, col, 40);
-        } else if (avgm > avgr) {
-            Imgproc.rectangle(HSV, mrect, col, 40);
-        } else {
-            Imgproc.rectangle(HSV, rrect, col, 40);
+        if(rightsideofbarrier){
+            Imgproc.rectangle(HSV, lrect2, col, 5);
+            Imgproc.rectangle(HSV, mrect2, col, 5);
+            Imgproc.rectangle(HSV, rrect2, col, 5);
+            if (avgl > avgm && avgl > avgr) {
+                Imgproc.rectangle(HSV, lrect2, col, 40);
+            } else if (avgm > avgr) {
+                Imgproc.rectangle(HSV, mrect2, col, 40);
+            } else {
+                Imgproc.rectangle(HSV, rrect2, col, 40);
+            }
+        }else {
+            Imgproc.rectangle(HSV, lrect, col, 5);
+            Imgproc.rectangle(HSV, mrect, col, 5);
+            Imgproc.rectangle(HSV, rrect, col, 5);
+            if (avgl > avgm && avgl > avgr) {
+                Imgproc.rectangle(HSV, lrect, col, 40);
+            } else if (avgm > avgr) {
+                Imgproc.rectangle(HSV, mrect, col, 40);
+            } else {
+                Imgproc.rectangle(HSV, rrect, col, 40);
+            }
         }
     }
 
@@ -312,9 +451,15 @@ class APipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         extractColor(input);
-        RectL = HSV.submat(lrect);
-        RectM = HSV.submat(mrect);
-        RectR = HSV.submat(rrect);
+        if (rightsideofbarrier){
+            RectL = HSV.submat(lrect2);
+            RectM = HSV.submat(mrect2);
+            RectR = HSV.submat(rrect2);
+        }else {
+            RectL = HSV.submat(lrect);
+            RectM = HSV.submat(mrect);
+            RectR = HSV.submat(rrect);
+        }
         System.out.println("processing requested");
         avgl = (int) Core.mean(RectL).val[0];
         avgm = (int) Core.mean(RectM).val[0];
@@ -322,11 +467,11 @@ class APipeline extends OpenCvPipeline {
         if(debugview) {
             drawRects(HSV);
         }
-        if (avgl >= (avgm + 3) && avgl >= (avgr + 3)) {
+        if (avgl >= (avgm + 5) && avgl >= (avgr + 5)) {
             returnlocation = 1;
-        } else if (avgm >= (avgl + 3) && avgm >= (avgr + 3)) {
+        } else if (avgm >= (avgl + 5) && avgm >= (avgr + 5)) {
             returnlocation = 2;
-        } else if (avgr >= (avgl + 3) && avgr >= (avgm + 3)){
+        } else if (avgr >= (avgl + 5) && avgr >= (avgm + 5)){
             returnlocation = 3;
         }else{
             returnlocation = 4;

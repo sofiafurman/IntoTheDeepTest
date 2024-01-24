@@ -19,14 +19,14 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="Robot: Auto Blue Right", group="Robot")
+@Autonomous(name="Robot: Kiss Creek's Blue Booty", group="Robot")
 //@Disabled
-public class AutoBlueRight extends LinearOpMode {
+public class KissCreekBootyBlue extends LinearOpMode {
     // camera and opencv stuff
     static final int STREAM_WIDTH = 1920; // modify for your camera
     static final int STREAM_HEIGHT = 1080; // modify for your camera
     OpenCvWebcam webcam;
-    ThePipeline3 pipeline;
+    ThePipeline6 pipeline;
 
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
     // and it will convert to the same encoder count. (~538 counts is one rotation)
@@ -63,7 +63,7 @@ public class AutoBlueRight extends LinearOpMode {
         WebcamName webcamName = null;
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
-        pipeline = new ThePipeline3();
+        pipeline = new ThePipeline6();
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -162,38 +162,29 @@ public class AutoBlueRight extends LinearOpMode {
             encoderDrive(16, 16, .3);
             encoderTurn(-60, .2);
             encoderDrive(9, 9, .3);
-            dropPixel(29);
+            dropPixel(10);
             encoderTurn(60, .2);
-            encoderDrive(42, 42, .3);
+            encoderDrive(-18, -18, .3);
         } else if (camera_val == 2) {
             // Drop pixel on middle line
             encoderDrive(8, 8, .3);
             encoderStrafe(-3, .2);
             encoderDrive(19, 19, .3);     // Drive and push over game piece if in the way
             encoderDrive(-1, -1, .3);
-            dropPixel(11);
-            encoderStrafe(19, .3);            // Get to middle of field
-            encoderDrive(33, 33, .3);
+            dropPixel(30);
         } else {
             // Drop pixel on right line
             encoderDrive(8, 8, .3);
             encoderStrafe(5, .2);
             encoderDrive(12.5, 12.5, .3);
             encoderDrive(-1, -1, .2);
-            dropPixel(5.5);
-            encoderStrafe(13, .2);
-            encoderDrive(35, 35, .3);
-            encoderStrafe(-1, .2);
+            dropPixel(20);
         }
+        encoderDrive(3, 3, .2);
         encoderTurn(90, .2);
-        encoderDrive(-103, -103, .5);          // go across the field
-        encoderStrafe(21, .3);  // Align with the board
-        encoderDrive(-6, -6, .25);   // Back up a tiny bit
-        encoderDrive(1, 1, .25);     // Don't touch the board
+        encoderDrive(-24*3.7, -24*3.7, .4);
+        placePixel(800, 1);
 
-        placePixel((int)(900*1.4), 1);           // Score! (hopefully)
-
-        encoderStrafe(-22, .5);          // Park and finish
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
@@ -223,13 +214,13 @@ public class AutoBlueRight extends LinearOpMode {
         sleep(400);
         servoRelease.setPosition(MAX_POS_RELEASE);
         sleep(400);
-        encoderDrive(2, 2, .2);     // Back away from the board
+        //encoderDrive(2, 2, .2);     // Don't need in this auto (not really scoring)
         // Reset
         servoTilt.setPosition(MIN_POS_TILT);
         servoRelease.setPosition(MIN_POS_RELEASE);
-        sleep(200);
-        extendMotor.setTargetPosition(0);
         sleep(1000);
+        extendMotor.setTargetPosition(0);
+        sleep(500);
         extendMotor.setPower(0);        // (Turn off slide)
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
@@ -371,7 +362,7 @@ public class AutoBlueRight extends LinearOpMode {
     }
 }
 
-class ThePipeline3 extends OpenCvPipeline {
+class ThePipeline6 extends OpenCvPipeline {
     Mat HSV = new Mat();
     Mat hsv1 = new Mat();
     Mat hsv2 = new Mat();
