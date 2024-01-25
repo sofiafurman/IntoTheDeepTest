@@ -26,7 +26,7 @@ public class KissCreekBootyRed extends LinearOpMode {
     static final int STREAM_WIDTH = 1920; // modify for your camera
     static final int STREAM_HEIGHT = 1080; // modify for your camera
     OpenCvWebcam webcam;
-    ThePipeline6 pipeline;
+    ThePipeline5 pipeline;
 
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
     // and it will convert to the same encoder count. (~538 counts is one rotation)
@@ -63,7 +63,7 @@ public class KissCreekBootyRed extends LinearOpMode {
         WebcamName webcamName = null;
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
-        pipeline = new ThePipeline6();
+        pipeline = new ThePipeline5();
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -164,21 +164,21 @@ public class KissCreekBootyRed extends LinearOpMode {
             encoderDrive(9, 9, .3);
             dropPixel(10);
             encoderTurn(-60, .2);
-            encoderDrive(-18, -18, .3);
+            encoderDrive(-19, -19, .3);
         } else if (camera_val == 2) {
             // Drop pixel on middle line
             encoderDrive(8, 8, .3);
             encoderStrafe(3, .2);
             encoderDrive(19, 19, .3);     // Drive and push over game piece if in the way
             encoderDrive(-1, -1, .3);
-            dropPixel(30);
+            dropPixel(31);
         } else {
             // Drop pixel on right line
             encoderDrive(8, 8, .3);
             encoderStrafe(-5, .2);
             encoderDrive(12.5, 12.5, .3);
             encoderDrive(-1, -1, .2);
-            dropPixel(20);
+            dropPixel(25);
         }
         encoderDrive(3, 3, .2);
         encoderTurn(-90, .2);
@@ -362,7 +362,7 @@ public class KissCreekBootyRed extends LinearOpMode {
     }
 }
 
-class ThePipeline3 extends OpenCvPipeline {
+class ThePipeline5 extends OpenCvPipeline {
     Mat HSV = new Mat();
     Mat hsv1 = new Mat();
     Mat hsv2 = new Mat();
@@ -380,9 +380,9 @@ class ThePipeline3 extends OpenCvPipeline {
     Rect lrect2 = new Rect(0, 620, 500, 460);
     Rect mrect2 = new Rect(550, 600, 500, 360);
     Rect rrect2 = new Rect(1200, 620, 420, 460);
-    boolean rightsideofbarrier = true;
+    boolean rightsideofbarrier = false;
     boolean debugview = true;
-    boolean doBlue = true;
+    boolean doBlue = false;
     int returnlocation;
     /*
      * This function takes the RGB frame, converts to HSV,

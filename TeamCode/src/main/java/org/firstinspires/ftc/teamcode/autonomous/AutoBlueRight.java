@@ -19,14 +19,14 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="Robot: Auto Blue Left", group="Robot")
+@Autonomous(name="Robot: Auto Blue Right", group="Robot")
 //@Disabled
-public class AutoBlueLeft extends LinearOpMode {
+public class AutoBlueRight extends LinearOpMode {
     // camera and opencv stuff
     static final int STREAM_WIDTH = 1920; // modify for your camera
     static final int STREAM_HEIGHT = 1080; // modify for your camera
     OpenCvWebcam webcam;
-    ThePipeline4 pipeline;
+    ThePipeline3 pipeline;
 
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
     // and it will convert to the same encoder count. (~538 counts is one rotation)
@@ -52,8 +52,7 @@ public class AutoBlueLeft extends LinearOpMode {
     final double MID_POS_RELEASE = 0.36;     // Middle position (1 pixel released)
     final double MIN_POS_RELEASE = 0.31;   // Lowest position (default)
 
-    private int camera_val = 1;/////////////////////////////////////////////////////////////
-
+    private int camera_val = 3;/////////////////////////////////////////////////////////////
 
     // Telemetry and timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -64,7 +63,7 @@ public class AutoBlueLeft extends LinearOpMode {
         WebcamName webcamName = null;
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
-        pipeline = new ThePipeline4();
+        pipeline = new ThePipeline3();
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -81,8 +80,7 @@ public class AutoBlueLeft extends LinearOpMode {
             }
         });
 
-        // As of 10.31.23 the following order matches the order
-        // the motors are plugged into the ports (0-3)
+        // Set up the drive motors
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
@@ -158,44 +156,45 @@ public class AutoBlueLeft extends LinearOpMode {
         servoRelease.setPosition(MIN_POS_RELEASE);
 
 
-        ////////// AUTO COMMANDS:
+        ///////// AUTO COMMANDS \\\\\\\\\\
         if (camera_val == 1) {
-            // Drop pixel on right line
-            encoderDrive(8, 8, .3);
-            encoderStrafe(-5, .2);
-            encoderDrive(12.5, 12.5, .3);
-            encoderDrive(-1, -1, .2);
-            dropPixel(3);
-            encoderStrafe(-20, .25);
-            encoderTurn(90, .2);
-            encoderDrive(-12, -12, .2);
-        } else if (camera_val == 2) {
-            // Middle line auto
-            encoderDrive(8, 8, .3);
-            encoderStrafe(-3, .3);
-            encoderDrive(20, 20, .3);
-            spinMotor.setPower(-.3);
-            encoderDrive(-10, -10, .3);
-            spinMotor.setPower(0);
-            // Get in front of board
-            encoderStrafe(30, .3);
-            encoderDrive(8, 8, .3);
-            encoderTurn(-90, .2);
-            encoderDrive(-12, -12, .2);
-        } else {
             // Drop pixel on left line
-            encoderDrive(18, 18, .3);
-            encoderTurn(60, .2);
+            encoderDrive(16, 16, .3);
+            encoderTurn(-60, .2);
             encoderDrive(9, 9, .3);
             dropPixel(29);
-            encoderStrafe(-26, .2);
-            encoderTurn(30, .2);
-            encoderDrive(-7, -7, .2);
+            encoderTurn(60, .2);
+            encoderDrive(42, 42, .3);
+        } else if (camera_val == 2) {
+            // Drop pixel on middle line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(-3, .2);
+            encoderDrive(19, 19, .3);     // Drive and push over game piece if in the way
+            encoderDrive(-1, -1, .3);
+            dropPixel(11);
+            encoderStrafe(19, .3);            // Get to middle of field
+            encoderDrive(33, 33, .3);
+        } else {
+            // Drop pixel on right line
+            encoderDrive(8, 8, .3);
+            encoderStrafe(5, .2);
+            encoderDrive(12.5, 12.5, .3);
+            encoderDrive(-1, -1, .2);
+            dropPixel(5.5);
+            encoderStrafe(13, .2);
+            encoderDrive(35, 35, .3);
+            encoderStrafe(-1, .2);
         }
-        // Score on board
-        placePixel((int)(900*1.4), 1);
-        encoderStrafe(25, .31);
-        /////////// END OF AUTO
+        encoderTurn(90, .2);
+        encoderDrive(-103, -103, .5);          // go across the field
+        encoderStrafe(21, .3);  // Align with the board
+        encoderDrive(-6, -6, .25);   // Back up a tiny bit
+        encoderDrive(1, 1, .25);     // Don't touch the board
+
+        placePixel((int)(900*1.4), 1);           // Score! (hopefully)
+
+        encoderStrafe(-22, .5);          // Park and finish
+        //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 
         // Let drive know when finished
@@ -279,15 +278,15 @@ public class AutoBlueLeft extends LinearOpMode {
         if (opModeIsActive()) {
             // Set targets using conversion factor to turn inches into encoder counts
             resetEncoders();
-            double newTarget = (targetIn * STRAFE_COUNTS_PER_INCH);
+            int newTarget = (int)(targetIn * STRAFE_COUNTS_PER_INCH);
 
-            rightFrontTarget = -(int)newTarget;
+            rightFrontTarget = -newTarget;
             rightFrontDrive.setTargetPosition(rightFrontTarget);
-            leftBackTarget = -(int)newTarget;
+            leftBackTarget = -newTarget;
             leftBackDrive.setTargetPosition(leftBackTarget);
-            rightBackTarget = (int)newTarget;
+            rightBackTarget = newTarget;
             rightBackDrive.setTargetPosition(rightBackTarget);
-            leftFrontTarget = (int)newTarget;
+            leftFrontTarget = newTarget;
             leftFrontDrive.setTargetPosition(leftFrontTarget);
 
             // Run
@@ -372,7 +371,7 @@ public class AutoBlueLeft extends LinearOpMode {
     }
 }
 
-class ThePipeline4 extends OpenCvPipeline {
+class ThePipeline3 extends OpenCvPipeline {
     Mat HSV = new Mat();
     Mat hsv1 = new Mat();
     Mat hsv2 = new Mat();
@@ -390,7 +389,7 @@ class ThePipeline4 extends OpenCvPipeline {
     Rect lrect2 = new Rect(0, 620, 500, 460);
     Rect mrect2 = new Rect(550, 600, 500, 360);
     Rect rrect2 = new Rect(1200, 620, 420, 460);
-    boolean rightsideofbarrier = false;
+    boolean rightsideofbarrier = true;
     boolean debugview = true;
     boolean doBlue = true;
     int returnlocation;
