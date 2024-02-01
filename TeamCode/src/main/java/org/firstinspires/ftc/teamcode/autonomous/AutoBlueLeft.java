@@ -172,15 +172,15 @@ public class AutoBlueLeft extends LinearOpMode {
         } else if (camera_val == 2) {
             // Middle line auto
             encoderDrive(8, 8, .3);
-            encoderStrafe(-3, .3);
+            encoderStrafe(3, .3);
             encoderDrive(20, 20, .3);
             spinMotor.setPower(-.3);
             encoderDrive(-10, -10, .3);
             spinMotor.setPower(0);
             // Get in front of board
-            encoderStrafe(30, .3);
+            encoderStrafe(-30, .3);
             encoderDrive(8, 8, .3);
-            encoderTurn(-90, .2);
+            encoderTurn(90, .2);
             encoderDrive(-12, -12, .2);
         } else {
             // Drop pixel on left line
