@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.cheezitbot;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,7 +20,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name="Robot: Auto Drive By Encoder (Cheezitbot)", group="Robot")
-//@Disabled
+@Disabled
 public class CheezitEncoderAuto extends LinearOpMode {
     // camera and opencv stuff
     static final int STREAM_WIDTH = 1920; // modify for your camera

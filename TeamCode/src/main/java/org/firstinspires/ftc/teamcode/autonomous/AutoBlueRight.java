@@ -165,6 +165,9 @@ public class AutoBlueRight extends LinearOpMode {
             dropPixel(29);
             encoderTurn(60, .2);
             encoderDrive(42, 42, .3);
+            encoderTurn(90, .2);
+            encoderDrive(-103, -103, .5);          // go across the field
+            encoderStrafe(21+12, .3);  // Align with the board
         } else if (camera_val == 2) {
             // Drop pixel on middle line
             encoderDrive(8, 8, .3);
@@ -174,6 +177,9 @@ public class AutoBlueRight extends LinearOpMode {
             dropPixel(11);
             encoderStrafe(19, .3);            // Get to middle of field
             encoderDrive(33, 33, .3);
+            encoderTurn(90, .2);
+            encoderDrive(-103, -103, .5);          // go across the field
+            encoderStrafe(21, .3);  // Align with the board
         } else {
             // Drop pixel on right line
             encoderDrive(8, 8, .3);
@@ -184,16 +190,22 @@ public class AutoBlueRight extends LinearOpMode {
             encoderStrafe(13, .2);
             encoderDrive(35, 35, .3);
             encoderStrafe(-1, .2);
+            encoderTurn(90, .2);
+            encoderDrive(-103, -103, .5);          // go across the field
+            encoderStrafe(21-4, .3);  // Align with the board
         }
-        encoderTurn(90, .2);
-        encoderDrive(-103, -103, .5);          // go across the field
-        encoderStrafe(21, .3);  // Align with the board
+
+        // (used by all positions)
         encoderDrive(-6, -6, .25);   // Back up a tiny bit
         encoderDrive(1, 1, .25);     // Don't touch the board
 
         placePixel((int)(900*1.4), 1);           // Score! (hopefully)
 
-        encoderStrafe(-22, .5);          // Park and finish
+        // Park and finish
+        if (camera_val == 1) {  encoderStrafe(-22-5, .5);  }
+        else if (camera_val == 2) {  encoderStrafe(22, .5);  }
+        else { encoderStrafe(-22+5, .5);   }
+
         //////////  END OF AUTONOMOUS  \\\\\\\\\
 
 

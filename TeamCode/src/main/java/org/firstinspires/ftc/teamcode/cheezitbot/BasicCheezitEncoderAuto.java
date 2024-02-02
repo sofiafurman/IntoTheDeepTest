@@ -11,12 +11,13 @@ are set up correctly and that encoders are running in general.
 //////////////////////////////////////
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name="Robot: TEST Auto Encoder Drive (Cheezitbot)", group="Robot")
-//@Disabled
+@Disabled
 public class BasicCheezitEncoderAuto extends LinearOpMode {
     // COUNTS_PER_INCH is the conversion multiplier. Multiply by an inch count,
     // and it will convert to the same encoder count. (1440 counts is one rotation)
