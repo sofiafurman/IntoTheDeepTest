@@ -57,6 +57,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
 
     private Servo servoTilt = null;
     private Servo servoRelease = null;
+    private Servo servoPlane = null;
 
     @Override
     public void runOpMode() {
@@ -71,6 +72,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
         extendMotor = hardwareMap.get(DcMotor.class, "extend_motor");
         servoTilt = hardwareMap.get(Servo.class, "servo_motor");
         servoRelease = hardwareMap.get(Servo.class, "servo_release");
+        servoPlane = hardwareMap.get(Servo.class, "servo_plane");
 
 
         // Servo Values
@@ -82,6 +84,12 @@ public class BasicMecanumTeleop extends LinearOpMode {
         final double MAX_POS_RELEASE = 0.53;    // Highest position (all pixels released)
         final double MID_POS_RELEASE = 0.35;     // Middle position (1 pixel released)
         final double MIN_POS_RELEASE = 0.31;   // Lowest position (default) OG .429
+
+        // This is for the plane launching system
+        final double PLANE_RELEASE = 0.35;
+        final double PLANE_HOLD = 0.42;
+        final double PLANE_TIMER_SET = 80;
+        double planeTimer = 10.0;
 
         double extendMultiplier = 1;
 
@@ -140,10 +148,6 @@ public class BasicMecanumTeleop extends LinearOpMode {
         extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
-
-
-
-
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         //telemetry.addData("Starting at",  "%7d", -1 * extendMotor.getCurrentPosition());
@@ -156,10 +160,12 @@ public class BasicMecanumTeleop extends LinearOpMode {
         servoTilt.setPosition(tiltServoPos);
         servoRelease.setPosition(MIN_POS_RELEASE);
 
+        servoPlane.setPosition(PLANE_HOLD);
+        planeTimer = PLANE_TIMER_SET;
+
         // Set starting position of extend motor
         extendMotor.setTargetPosition(levelZero);
         //currentPos is levelZero
-
 
 
         // run until the end of the match (driver presses STOP)
@@ -168,26 +174,6 @@ public class BasicMecanumTeleop extends LinearOpMode {
             if (gamepad2.dpad_left){ // && currentPos == levelZero
                 extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
-            /*
-            if (gamepad2.dpad_left && !changed5) {
-
-                extendToggle = !extendToggle;
-                telemetry.addData("status", "switched!");
-                changed5 = true;
-
-               // extendMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                //extendMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
-
-            } else if (!gamepad2.dpad_left) {
-                changed5 = false;
-
-            }
-            */
-
-
-            //float extendPower = gamepad2.left_stick_y;
 
             if(!extendToggle) {
                 telemetry.addData("status", "button not pressed");
@@ -268,8 +254,20 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
 
+            // PLANE LAUNCH:
+            // Timer (wait for second before launching)
+            if (gamepad2.right_trigger > 0.0 && gamepad2.left_trigger > 0.0) {
+                planeTimer -= 1;
+            } else if (planeTimer != PLANE_TIMER_SET) {
+                planeTimer = PLANE_TIMER_SET;
+            }
+            // Launch
+            if (planeTimer <= 0) {
+                servoPlane.setPosition(PLANE_RELEASE);
+            }
+            telemetry.addData("Plane Timer", planeTimer); // (no way!)
 
-
+            // DRIVE BASE:
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -323,10 +321,10 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //spinny code (intake motor)
-            if (gamepad2.a || gamepad1.right_bumper) {
+            if (gamepad2.a) {
                 spinFactor = 0.87;
                 servoRelease.setPosition(0.62);
-            } else if (gamepad2.b ||  gamepad1.left_bumper) {
+            } else if (gamepad2.b) {
                 spinFactor = -0.87;
             } else {
                 spinFactor = 0;
