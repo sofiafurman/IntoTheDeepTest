@@ -31,20 +31,18 @@
 
 //test 9-13-24
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.cheezitbot;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.Servo;
 
 
 @TeleOp(name="COMPETITION TELE-OP", group="Linear OpMode")
 //@Disabled
-public class BasicMecanumTeleop extends LinearOpMode {
+public class ForRefOnly extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
@@ -323,6 +321,7 @@ public class BasicMecanumTeleop extends LinearOpMode {
             }
 
             //spinny code (intake motor)
+
             if (gamepad2.a) {
                 spinFactor = 0.87;
                 servoRelease.setPosition(0.62);

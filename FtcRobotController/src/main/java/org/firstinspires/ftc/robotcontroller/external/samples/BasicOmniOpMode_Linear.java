@@ -64,8 +64,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
-@Disabled
+//@Disabled
 public class BasicOmniOpMode_Linear extends LinearOpMode {
+
+    double speed = 0.5;
+    boolean buttonBStatus = false;
+
+    int movtDirection = 1;
+    boolean buttonAStatus = false;
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
@@ -111,8 +117,8 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
+            double axial   = -gamepad1.left_stick_y * -1;  // Note: pushing stick forward gives negative value
+            double lateral =  gamepad1.left_stick_x * -1;
             double yaw     =  gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
@@ -152,11 +158,29 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
 
+            if (gamepad1.a && !buttonAStatus) {
+                buttonAStatus = true;
+                movtDirection = - movtDirection;
+            } else if (!gamepad1.a) {
+                buttonAStatus = false;
+            }
+
+            if (gamepad1.b && !buttonBStatus) {
+                buttonBStatus = true;
+                if (speed == 0.5) {
+                    speed = 0.7;
+                } else {
+                    speed = 0.5;
+                }
+            } else if (!gamepad1.b) {
+                buttonBStatus = false;
+            }
+
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower);
-            rightFrontDrive.setPower(rightFrontPower);
-            leftBackDrive.setPower(leftBackPower);
-            rightBackDrive.setPower(rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower * speed * movtDirection);
+            rightFrontDrive.setPower(rightFrontPower * speed * movtDirection);
+            leftBackDrive.setPower(leftBackPower * speed * movtDirection);
+            rightBackDrive.setPower(rightBackPower * speed * movtDirection);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
